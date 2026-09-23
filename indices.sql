@@ -27,3 +27,16 @@ ON Pedido (id_cliente, fecha_hora DESC);
 CREATE INDEX idx_detalle_pedido_prod_covering
 ON Detalle_Pedido (id_producto)
 INCLUDE (cantidad, precio_unitario);
+
+-- ============================================================
+-- Índice descartado por sobreindexación (NO se crea; se deja
+-- documentado el motivo del descarte, ver specs/spec_idx_pedido_
+-- forma_pago_DESCARTADO.md):
+--
+-- CREATE INDEX idx_pedido_forma_pago ON Pedido (forma_pago);
+--
+-- Motivo: baja cardinalidad (4 valores enum, ~25% cada uno).
+-- El planificador de PostgreSQL descarta el índice y usa Seq Scan,
+-- por lo que el índice solo agregaría costo de escritura y de
+-- memoria (buffer pool) sin beneficio real. Ver informe_mediciones.md.
+-- ============================================================
