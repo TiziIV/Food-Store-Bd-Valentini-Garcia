@@ -39,3 +39,16 @@ SELECT
     c.correo
 FROM Pedido pe
 JOIN Cliente c ON pe.id_cliente = c.id_cliente;
+
+-- 3. Detalle de pedido con el nombre del producto y el subtotal
+--    calculado (cantidad × precio_unitario).
+CREATE OR REPLACE VIEW vista_detalle_pedido_producto AS
+SELECT
+    dp.id_pedido,
+    p.id_producto,
+    p.nombre_producto,
+    dp.cantidad,
+    dp.precio_unitario,
+    (dp.cantidad * dp.precio_unitario) AS subtotal
+FROM Detalle_Pedido dp
+JOIN Producto p ON dp.id_producto = p.id_producto;
