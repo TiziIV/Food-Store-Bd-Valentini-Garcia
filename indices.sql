@@ -20,3 +20,10 @@ WHERE activo = TRUE;
 --    memoria al indexar fecha_hora en orden descendente.
 CREATE INDEX idx_pedido_cliente_fecha_desc
 ON Pedido (id_cliente, fecha_hora DESC);
+
+-- 3. Cubre consultas de detalles por producto (Consulta 3) sin
+--    acceder al heap de la tabla (Index Only Scan), incluyendo
+--    cantidad y precio_unitario como columnas no indexadas.
+CREATE INDEX idx_detalle_pedido_prod_covering
+ON Detalle_Pedido (id_producto)
+INCLUDE (cantidad, precio_unitario);
