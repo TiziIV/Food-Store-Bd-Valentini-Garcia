@@ -1,0 +1,22 @@
+# Archivos de sistema
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# PostgreSQL
+*.sql~
+*.sql.bak
+dump.sql
+
+# Logs
+*.log
+
+# Backups
+*.backup
+*.bkp
+
+# Archivos temporales
+*.tmp
