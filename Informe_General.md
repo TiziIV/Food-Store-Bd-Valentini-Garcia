@@ -124,17 +124,65 @@ de la cátedra.
 
 ## 6. Checklist de los 9 objetivos exigidos por la entrega parcial
 
-| # | Objetivo | Estado | Evidencia |
-|---|---|---|---|
-| 1 | Modelo ER (entidades, atributos, claves, cardinalidad, participación) | Cubierto | [`TP1_FoodStore/diagrama-er.png`](TP1_FoodStore/diagrama-er.png), [`TP1_FoodStore/modelo_relacional_y_normalizacion.md`](TP1_FoodStore/modelo_relacional_y_normalizacion.md) |
-| 2 | Paso de ER a modelo relacional (1:N y N:M con tabla intermedia) | Cubierto | Mismo archivo, sección "Parte 2" |
-| 3 | Normalización hasta 3FN/BCNF con justificación de dependencias funcionales | Cubierto | Mismo archivo, sección "Parte 3" |
-| 4 | DDL completo (tipos, PK/FK, restricciones e índices) | Cubierto | [`TP1_FoodStore/schema.sql`](TP1_FoodStore/schema.sql) |
-| 5 | DML y consultas: JOIN, agregación, subconsultas, GROUP BY/HAVING, funciones de ventana | Cubierto | [`TP3/queries.sql`](TP3_Optimizacion_Indices/queries.sql), [`TP4/queries.sql`](TP4_Reportes_Analiticos/queries.sql) (JOIN, `SUM`, subconsultas correlacionadas y no correlacionadas, `DENSE_RANK() OVER`) |
-| 6 | Vistas, funciones y procedimientos en PL/pgSQL | Parcial | Vistas cubiertas en [`TP5_Indices_Vistas/views.sql`](TP5_Indices_Vistas/views.sql) y vista materializada en [`materializadas.sql`](TP5_Indices_Vistas/materializadas.sql). Las funciones/triggers en PL/pgSQL están en [`TP2/restricciones.sql`](TP2_Concurrencia_IA/restricciones.sql); **no hay todavía un procedimiento invocado con `CALL`** — está previsto para la próxima entrega (Semana 6), según lo documentado en `TP5_Indices_Vistas/README.md`. |
-| 7 | Reglas de negocio con CHECK, UNIQUE y triggers | Cubierto | `CHECK`/`UNIQUE` en `schema.sql` (Parte 1) y en `TP2/restricciones.sql`; triggers de stock y de inmutabilidad del precio histórico en `TP2/restricciones.sql` |
-| 8 | Transacciones: atomicidad, COMMIT/ROLLBACK, niveles de aislamiento, control de concurrencia | Cubierto | [`TP2_Concurrencia_IA/informe_concurrencia.md`](TP2_Concurrencia_IA/informe_concurrencia.md) (tres escenarios con dos sesiones, verificados en el motor) |
-| 9 | Borrado lógico (soft delete) y su impacto en consultas e índices | Parcial | Implementado en `Producto.activo`, con índice parcial `WHERE activo = TRUE` (`TP5_Indices_Vistas/indices.sql`) y filtro reflejado en las vistas/consultas de reporte. **No está aplicado todavía en `Cliente`, `Pedido` ni `Detalle_Pedido`** — queda señalado como ampliación pendiente del modelo para la próxima entrega. |
+Resumen rápido (detalle de evidencia debajo de la tabla):
+
+| # | Objetivo | Estado |
+|---|---|---|
+| 1 | Modelo ER | Cubierto |
+| 2 | Paso de ER a modelo relacional | Cubierto |
+| 3 | Normalización hasta 3FN/BCNF | Cubierto |
+| 4 | DDL completo | Cubierto |
+| 5 | DML y consultas (JOIN, agregación, subconsultas, ventana) | Cubierto |
+| 6 | Vistas, funciones y procedimientos en PL/pgSQL | Parcial |
+| 7 | Reglas de negocio con CHECK, UNIQUE y triggers | Cubierto |
+| 8 | Transacciones y control de concurrencia | Cubierto |
+| 9 | Borrado lógico (soft delete) | Parcial |
+
+**1. Modelo ER** (entidades, atributos, claves, cardinalidad,
+participación) — [`TP1_FoodStore/diagrama-er.png`](TP1_FoodStore/diagrama-er.png)
+y [`TP1_FoodStore/modelo_relacional_y_normalizacion.md`](TP1_FoodStore/modelo_relacional_y_normalizacion.md).
+
+**2. Paso de ER a modelo relacional** (1:N y N:M con tabla
+intermedia) — mismo archivo, sección "Parte 2".
+
+**3. Normalización hasta 3FN/BCNF**, con justificación de
+dependencias funcionales — mismo archivo, sección "Parte 3".
+
+**4. DDL completo** (tipos, PK/FK, restricciones e índices) —
+[`TP1_FoodStore/schema.sql`](TP1_FoodStore/schema.sql).
+
+**5. DML y consultas** (JOIN, agregación, subconsultas, GROUP
+BY/HAVING, funciones de ventana) —
+[`TP3/queries.sql`](TP3_Optimizacion_Indices/queries.sql) y
+[`TP4/queries.sql`](TP4_Reportes_Analiticos/queries.sql): JOIN,
+`SUM`, subconsultas correlacionadas y no correlacionadas,
+`DENSE_RANK() OVER`.
+
+**6. Vistas, funciones y procedimientos en PL/pgSQL — Parcial.**
+Vistas cubiertas en [`TP5_Indices_Vistas/views.sql`](TP5_Indices_Vistas/views.sql)
+y vista materializada en [`materializadas.sql`](TP5_Indices_Vistas/materializadas.sql).
+Las funciones/triggers en PL/pgSQL están en
+[`TP2/restricciones.sql`](TP2_Concurrencia_IA/restricciones.sql); **no
+hay todavía un procedimiento invocado con `CALL`** — está previsto
+para la próxima entrega (Semana 6), según lo documentado en
+`TP5_Indices_Vistas/README.md`.
+
+**7. Reglas de negocio con CHECK, UNIQUE y triggers** —
+`CHECK`/`UNIQUE` en `schema.sql` (Parte 1) y en `TP2/restricciones.sql`;
+triggers de stock y de inmutabilidad del precio histórico en
+`TP2/restricciones.sql`.
+
+**8. Transacciones** (atomicidad, COMMIT/ROLLBACK, niveles de
+aislamiento, control de concurrencia) —
+[`TP2_Concurrencia_IA/informe_concurrencia.md`](TP2_Concurrencia_IA/informe_concurrencia.md):
+tres escenarios con dos sesiones, verificados en el motor.
+
+**9. Borrado lógico (soft delete) — Parcial.** Implementado en
+`Producto.activo`, con índice parcial `WHERE activo = TRUE`
+(`TP5_Indices_Vistas/indices.sql`) y filtro reflejado en las
+vistas/consultas de reporte. **No está aplicado todavía en `Cliente`,
+`Pedido` ni `Detalle_Pedido`** — queda señalado como ampliación
+pendiente del modelo para la próxima entrega.
 
 Los puntos 6 y 9 quedan marcados como parciales de forma explícita
 para que la ausencia de evidencia no se confunda con un intento de
