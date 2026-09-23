@@ -2,11 +2,39 @@
 
 Cátedra: Base de Datos II — Unidad 2, Semana 4 — Reportes analíticos asistidos por IA
 
-| Herramienta | Propósito de uso | Consigna / especificación prompteada | Criterio de validación y fundamento |
-|---|---|---|---|
-| Asistente IA (OpenCode) | Optimización y reescritura de las consultas de la Sección 1 (facturación por categoría/producto y clientes por gasto en 180 días). | "Ante este plan de ejecución ineficiente, proponé índices o cambios de estructura para mejorar el rendimiento..." (plan real de `EXPLAIN ANALYZE` adjunto). | Aceptado: la propuesta de pre-agregación mediante CTE + Index Only Scan bajó los tiempos de cómputo un 73,6%–75,0%, coherente con la semántica de las uniones reales del modelo. |
-| Asistente IA (OpenCode) | Interpretación técnica de los nodos del plan en la Sección 2 (lectura crítica). | "Detallá en profundidad el comportamiento de cada nodo en el plan provisto..." | Rechazado parcialmente: la herramienta invirtió la relación externa/interna en el `Nested Loop`, confundió el `cost` estimado con tiempo real, y atribuyó la elección de `Hash Join` a la ausencia de clave primaria (falso: `Detalle_Pedido` sí tiene PK compuesta). Las tres correcciones se documentan en `informe_mediciones.md`. |
-| Asistente IA (OpenCode) | Construcción de las consultas analíticas de la Sección 3 (ranking y subconsulta correlacionada). | Diseño de versión 1 y versión 2 de cada consulta bajo especificación estricta, para su posterior validación con `EXCEPT`. | Aceptado: el código resultante preservó las restricciones lógicas (`activo = TRUE`) y el uso explícito de `DENSE_RANK()`; la verificación `EXCEPT` en ambos sentidos dio 0 filas para las dos consultas. |
+## 1. Optimización de las consultas de la Sección 1
+
+- **Herramienta:** Asistente IA (OpenCode).
+- **Consigna / spec prompteada:** "Ante este plan de ejecución ineficiente,
+  proponé índices o cambios de estructura para mejorar el rendimiento..."
+  (con el plan real de `EXPLAIN ANALYZE` adjunto).
+- **Criterio de validación y fundamento:** aceptado. La propuesta de
+  pre-agregación mediante CTE + Index Only Scan bajó los tiempos de cómputo
+  entre 73,6% y 75,0%, coherente con la semántica de las uniones reales del
+  modelo.
+
+## 2. Interpretación técnica de los planes de join (Sección 2)
+
+- **Herramienta:** Asistente IA (OpenCode).
+- **Consigna / spec prompteada:** "Detallá en profundidad el comportamiento
+  de cada nodo en el plan provisto..."
+- **Criterio de validación y fundamento:** rechazado parcialmente. La
+  herramienta invirtió la relación externa/interna en el `Nested Loop`,
+  confundió el `cost` estimado con tiempo real, y atribuyó la elección de
+  `Hash Join` a la ausencia de clave primaria (falso: `Detalle_Pedido` sí
+  tiene PK compuesta). Las tres correcciones se documentan en
+  `informe_mediciones.md`.
+
+## 3. Consultas analíticas de la Sección 3 (ranking y correlacionada)
+
+- **Herramienta:** Asistente IA (OpenCode).
+- **Consigna / spec prompteada:** diseño de versión 1 y versión 2 de cada
+  consulta bajo especificación estricta, para su posterior validación con
+  `EXCEPT`.
+- **Criterio de validación y fundamento:** aceptado. El código resultante
+  preservó las restricciones lógicas (`activo = TRUE`) y el uso explícito
+  de `DENSE_RANK()`; la verificación `EXCEPT` en ambos sentidos dio 0 filas
+  para las dos consultas.
 
 ## Nota sobre los índices de la Parte 1
 
