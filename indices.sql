@@ -14,3 +14,9 @@
 CREATE INDEX idx_producto_cat_precio_activo
 ON Producto (id_categoria, precio_actual)
 WHERE activo = TRUE;
+
+-- 2. Optimiza la consulta cronológica de pedidos por cliente
+--    (Consulta 2), evitando el nodo de ordenamiento (Sort) en
+--    memoria al indexar fecha_hora en orden descendente.
+CREATE INDEX idx_pedido_cliente_fecha_desc
+ON Pedido (id_cliente, fecha_hora DESC);
