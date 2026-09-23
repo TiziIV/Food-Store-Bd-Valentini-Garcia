@@ -1,14 +1,19 @@
-# Food Store — Índices, Vistas y Vistas Materializadas
+# TP5 — Índices, Vistas y Vistas Materializadas
 
 Unidad 3, Semana 5 — Base de Datos II
 
-## Estructura del repositorio
+Esta carpeta es la última pieza del proyecto integrador Food Store
+dentro del repositorio dividido por TP. El esquema (`schema.sql`)
+vive en [`TP1_FoodStore/`](../TP1_FoodStore/); esta carpeta solo
+agrega objetos nuevos sobre ese esquema, sin modificarlo.
+
+## Estructura de esta carpeta
 
 ```
-food-store/
-├── schema.sql              (heredado, sin modificar)
-├── data.sql                (heredado, ampliado con más volumen)
-├── queries.sql              (heredado)
+TP5_Indices_Vistas/
+├── data.sql                (heredado de TP1, ampliado con la carga
+│                             masiva de TP3/TP4)
+├── queries.sql              (heredado de TP3/TP4)
 ├── indices.sql              (nuevo — Parte A)
 ├── views.sql                (nuevo — Parte B)
 ├── materializadas.sql       (nuevo — Parte C)
@@ -25,12 +30,13 @@ food-store/
 
 ## Cómo reproducir las pruebas
 
-1. Crear la base y cargar el esquema heredado:
+1. Crear la base y cargar el esquema y los datos (parado en la raíz
+   del repositorio, en este orden):
 
 ```bash
 createdb food_store
-psql -d food_store -f schema.sql
-psql -d food_store -f data.sql
+psql -d food_store -f TP1_FoodStore/schema.sql
+psql -d food_store -f TP5_Indices_Vistas/data.sql
 ```
 
 2. Confirmar el volumen de datos (se usó como referencia: 50.000
@@ -60,7 +66,7 @@ WHERE id_categoria = 5 AND activo = TRUE
 4. Aplicar los índices y volver a medir:
 
 ```bash
-psql -d food_store -f indices.sql
+psql -d food_store -f TP5_Indices_Vistas/indices.sql
 ```
 
 Repetir los mismos `EXPLAIN ANALYZE` del paso 3 y comparar planes
@@ -74,7 +80,7 @@ y tiempos contra `informe_mediciones.md`.
 6. Crear las vistas y verificar equivalencia:
 
 ```bash
-psql -d food_store -f views.sql
+psql -d food_store -f TP5_Indices_Vistas/views.sql
 ```
 
 Para cada vista, ejecutar la comparación con `EXCEPT` en ambos
@@ -84,7 +90,7 @@ sentidos contra la consulta manual equivalente (ver ejemplos en
 7. Crear la vista materializada y medir el reporte:
 
 ```bash
-psql -d food_store -f materializadas.sql
+psql -d food_store -f TP5_Indices_Vistas/materializadas.sql
 ```
 
 ```sql
