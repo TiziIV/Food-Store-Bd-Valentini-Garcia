@@ -89,7 +89,18 @@ Ver el detalle completo en cada `informe_mediciones.md`
 | Detalle_Pedido por rango de precio (TP3) | Seq Scan, 129.2 ms | Bitmap Heap Scan, 16.9 ms | 86,9% (~7,6x) |
 | Facturación por categoría/producto (TP4) | Hash Join + Seq Scan, 145.8 ms | Hash Join + Index Only Scan, 38.4 ms | 73,6% (~3,8x) |
 | Clientes por gasto en 180 días (TP4) | Hash Join + Seq Scan, 168.5 ms | Bitmap Index Scan + Hash Join, 42.1 ms | 75,0% (~4,0x) |
-| Facturación por categoría y mes (TP5, vista materializada) | Consulta agregada original sin materializar | `SELECT * FROM mv_facturacion_categoria_mes` | Ver TP5/informe_mediciones.md |
+| Facturación por categoría y mes (TP5, vista materializada) | Consulta agregada, 810,45 ms | `SELECT * FROM mv_facturacion_categoria_mes`, 1,15 ms | 99,86% (~705x) |
+
+Los tiempos de TP3 y TP4 que cierran en centésimas `.x00` (13,100;
+129,200; 0,300; 145,800) son cifras redondeadas transcriptas del
+informe de cada semana, no un volcado crudo de `EXPLAIN ANALYZE`. El
+plan (tipo de scan, nodo de Sort, filas descartadas) sí corresponde
+a lo medido. La línea base de la consulta de pedidos en TP5 (Seq
+Scan, ~25 ms) se tomó **sin** `idx_pedido_id_cliente`, que
+`schema.sql` ya crea: con ese índice el plan es el de TP3 (Bitmap
+Heap Scan, ~0,3 ms). En la carga integrada ese índice simple se
+elimina después, porque queda cubierto por
+`idx_pedido_cliente_fecha_desc`.
 
 ## 4. Qué se optimizó y qué diferencias se encontraron
 
@@ -113,6 +124,14 @@ baja cardinalidad (4 valores ENUM), porque el optimizador lo ignora y
 solo agrega costo de escritura sin beneficio de lectura (ver
 [`TP5_Indices_Vistas/specs/spec_idx_pedido_forma_pago_DESCARTADO.md`](TP5_Indices_Vistas/specs/spec_idx_pedido_forma_pago_DESCARTADO.md)).
 
+El mismo criterio se aplicó a índices repetidos. `idx_pedido_cliente_fecha_hora`
+(TP3) es el mismo árbol que `idx_pedido_cliente_fecha_desc` (TP5).
+`idx_detalle_pedido_facturacion` (TP4) es el mismo que
+`idx_detalle_pedido_prod_covering` (TP5). En la carga integrada se
+crea cada uno una sola vez, en `TP5_Indices_Vistas/indices.sql`, y
+ahí se eliminan `idx_pedido_id_cliente` e `idx_detalle_pedido_id_producto`
+de `schema.sql`, que quedan subsumidos por esos compuestos.
+
 ## 5. Uso de herramientas de IA
 
 Herramientas usadas en todo el proyecto: **Kiro** (especificación de
@@ -122,7 +141,8 @@ detalle de qué se aceptó, modificó o descartó de cada propuesta está
 documentado en el `duia.md` de cada carpeta de TP. Ningún script
 generado por IA se ejecutó sin leerse línea por línea ni sin probarse
 primero sobre una copia de trabajo, según el protocolo de seguridad
-de la cátedra.
+de la cátedra. No se usó otra herramienta de IA además de Kiro y
+OpenCode.
 
 ## 6. Checklist de los 9 objetivos exigidos por la entrega parcial
 
@@ -155,41 +175,49 @@ dependencias funcionales — mismo archivo, sección "Parte 3".
 
 **5. DML y consultas** (JOIN, agregación, subconsultas, GROUP
 BY/HAVING, funciones de ventana) —
-[`TP3/queries.sql`](TP3_Optimizacion_Indices/queries.sql) y
-[`TP4/queries.sql`](TP4_Reportes_Analiticos/queries.sql): JOIN,
+[`TP3/queries.sql`](TP3_Optimizacion_Indices/queries.sql),
+[`TP4/queries.sql`](TP4_Reportes_Analiticos/queries.sql) y
+[`TP5/queries.sql`](TP5_Indices_Vistas/queries.sql): JOIN,
 `SUM`, subconsultas correlacionadas y no correlacionadas,
-`DENSE_RANK() OVER`.
+`DENSE_RANK() OVER`. El `HAVING` está en la consulta 10 de
+[`TP5/queries.sql`](TP5_Indices_Vistas/queries.sql) (categorías con
+facturación vigente mayor a 100.000). Las consultas de ese archivo
+filtran `eliminado = FALSE`.
 
 **6. Vistas, funciones y procedimientos en PL/pgSQL.** Vistas en
 [`TP5_Indices_Vistas/views.sql`](TP5_Indices_Vistas/views.sql) y vista
 materializada en [`materializadas.sql`](TP5_Indices_Vistas/materializadas.sql).
-Funciones-trigger en PL/pgSQL en
-[`TP2/restricciones.sql`](TP2_Concurrencia_IA/restricciones.sql).
-Procedimientos invocados con `CALL` en
+Función invocable (no es un trigger): `fn_total_pedido(id) RETURNS numeric`,
+con `SELECT fn_total_pedido(1);`. Procedimientos con `CALL` en
 [`TP5_Indices_Vistas/procedimientos.sql`](TP5_Indices_Vistas/procedimientos.sql):
-`sp_registrar_pedido` (carga atómica de un pedido con JSONB,
-reutilizando el trigger de validación de stock) y
-`sp_dar_baja_cliente` (aplica el borrado lógico del punto 9).
+`sp_registrar_pedido`, `sp_anular_pedido` y `sp_dar_baja_cliente`.
+Los triggers de stock e inmutabilidad siguen en
+[`TP2/restricciones.sql`](TP2_Concurrencia_IA/restricciones.sql).
 
 **7. Reglas de negocio con CHECK, UNIQUE y triggers** —
 `CHECK`/`UNIQUE` en `schema.sql` (Parte 1) y en `TP2/restricciones.sql`;
-triggers de stock y de inmutabilidad del precio histórico en
-`TP2/restricciones.sql`.
+triggers de stock (`FOR UPDATE` sobre `Producto`) y de inmutabilidad
+del precio histórico en `TP2/restricciones.sql`. El trigger de
+devolución de stock al anular una línea está en `soft_delete.sql`.
 
 **8. Transacciones** (atomicidad, COMMIT/ROLLBACK, niveles de
 aislamiento, control de concurrencia) —
 [`TP2_Concurrencia_IA/informe_concurrencia.md`](TP2_Concurrencia_IA/informe_concurrencia.md):
-tres escenarios con dos sesiones, verificados en el motor.
+guion de dos sesiones, `ROLLBACK` que no deja la fila, y reintento
+ante `SQLSTATE 40001` en `SERIALIZABLE`.
 
-**9. Borrado lógico (soft delete).** Base en `Producto.activo`, con
-índice parcial `WHERE activo = TRUE` (`TP5_Indices_Vistas/indices.sql`)
-reflejado en las vistas/consultas de reporte. Extendido a `Cliente`,
-`Pedido` y `Detalle_Pedido` en
-[`TP5_Indices_Vistas/soft_delete.sql`](TP5_Indices_Vistas/soft_delete.sql),
-con sus propios índices parciales (`idx_pedido_vigente_cliente_fecha`,
-`idx_detalle_pedido_vigente`) y el ejemplo concreto de cómo cambia la
-consulta de "clientes sin pedidos" de TP3 al aplicar el filtro de
-vigencia en ambas tablas.
+**9. Borrado lógico (soft delete).** `Producto.activo = TRUE` significa
+que se puede vender; `eliminado = TRUE` en Cliente, Pedido y
+Detalle_Pedido significa dado de baja. Son flags de polaridad
+opuesta y responden preguntas distintas. La baja está en
+[`TP5_Indices_Vistas/soft_delete.sql`](TP5_Indices_Vistas/soft_delete.sql):
+índice único parcial `uq_cliente_correo_vigente WHERE eliminado = FALSE`
+(reemplaza el `UNIQUE` de `schema.sql`), índices parciales de
+pedidos y detalles vigentes, y trigger que devuelve stock al anular
+una línea. Las vistas, la vista materializada y
+`TP5_Indices_Vistas/queries.sql` excluyen filas con
+`eliminado = TRUE`. `sp_registrar_pedido` rechaza un cliente dado
+de baja; `sp_anular_pedido` anula el pedido y repone el stock.
 
 Ver el paso 9 de [`TP5_Indices_Vistas/README.md`](TP5_Indices_Vistas/README.md)
 para aplicar `soft_delete.sql` y `procedimientos.sql`, y verificarlos

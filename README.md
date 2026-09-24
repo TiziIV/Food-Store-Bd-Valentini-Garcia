@@ -80,23 +80,26 @@ createdb food_store
 # TP1 — esquema base
 psql -d food_store -f TP1_FoodStore/schema.sql
 
-# TP2 — restricciones de integridad y disparadores adicionales
-psql -d food_store -f TP2_Concurrencia_IA/restricciones.sql
-
-# TP5 — carga de datos (incluye la carga masiva usada desde TP3)
+# Carga masiva ANTES del trigger de stock. data.sql inserta ~400.000
+# detalles con stock aleatorio de 0 a 200; si el trigger ya está
+# activo, miles de líneas fallan con "Stock insuficiente" y el
+# BEGIN/COMMIT de data.sql revierte toda la carga.
 psql -d food_store -f TP5_Indices_Vistas/data.sql
 
-# TP3 — índices de la Semana 3
+# TP2 — restricciones y disparadores (después de los datos)
+psql -d food_store -f TP2_Concurrencia_IA/restricciones.sql
+
+# Índices. TP3 y TP4 no recrean los que TP5 define iguales
+# (idx_pedido_cliente_fecha_desc e idx_detalle_pedido_prod_covering).
 psql -d food_store -f TP3_Optimizacion_Indices/indices.sql
-
-# TP4 — índices de la Semana 4
 psql -d food_store -f TP4_Reportes_Analiticos/indices.sql
-
-# TP5 — índices, vistas, materializada, borrado lógico y procedimientos
 psql -d food_store -f TP5_Indices_Vistas/indices.sql
+
+# Borrado lógico antes de vistas: las vistas y la materializada
+# filtran eliminado = FALSE.
+psql -d food_store -f TP5_Indices_Vistas/soft_delete.sql
 psql -d food_store -f TP5_Indices_Vistas/views.sql
 psql -d food_store -f TP5_Indices_Vistas/materializadas.sql
-psql -d food_store -f TP5_Indices_Vistas/soft_delete.sql
 psql -d food_store -f TP5_Indices_Vistas/procedimientos.sql
 ```
 

@@ -28,6 +28,12 @@ CREATE INDEX idx_detalle_pedido_prod_covering
 ON Detalle_Pedido (id_producto)
 INCLUDE (cantidad, precio_unitario);
 
+-- Los índices simples de schema.sql quedan cubiertos por los
+-- compuestos de arriba (el prefijo id_cliente, y el covering sobre
+-- id_producto). Dejarlos sumaría costo de escritura sin un plan distinto.
+DROP INDEX IF EXISTS idx_pedido_id_cliente;
+DROP INDEX IF EXISTS idx_detalle_pedido_id_producto;
+
 -- ============================================================
 -- Índice descartado por sobreindexación (NO se crea; se deja
 -- documentado el motivo del descarte, ver specs/spec_idx_pedido_

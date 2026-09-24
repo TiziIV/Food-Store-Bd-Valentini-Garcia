@@ -11,10 +11,10 @@ Nunca se interactúa ni se prueban modificaciones sobre la base productiva. Todo
 ### Comandos de ejecución:
 ```bash
 # Cerrar conexiones activas si la base origen está en uso
-psql -U postgres -d postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'foodstore_db' AND pid <> pg_backend_pid();"
+psql -U postgres -d postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'food_store' AND pid <> pg_backend_pid();"
 
 # Crear la base de trabajo a partir del template
-createdb -U postgres -T foodstore_db foodstore_dev_concurrencia
+createdb -U postgres -T food_store food_store_dev
 ```
 
 ---
@@ -47,7 +47,7 @@ Antes de ejecutar sentencias estructurales permanentes (ALTER TABLE, DROP, migra
 ```bash
 mkdir -p ./backups
 
-pg_dump -U postgres -d foodstore_dev_concurrencia --format=plain --file="./backups/foodstore_pre_ddl_$(date +%Y%m%d_%H%M%S).sql"
+pg_dump -U postgres -d food_store_dev --format=plain --file="./backups/food_store_pre_ddl_$(date +%Y%m%d_%H%M%S).sql"
 ```
 
 ---

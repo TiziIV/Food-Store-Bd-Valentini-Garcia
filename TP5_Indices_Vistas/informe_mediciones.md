@@ -5,6 +5,16 @@ Cátedra: Base de Datos II — Unidad 3, Semana 5
 Volumen de datos usado en todas las mediciones: 50.000 productos,
 20.000 clientes, 200.000 pedidos, 400.000 detalles de pedido.
 
+Los tiempos que cierran en centésimas `.x00` son cifras redondeadas
+del informe de la semana, no el texto crudo de `EXPLAIN ANALYZE`.
+La línea base "Seq Scan" de pedidos por `id_cliente` y de detalles
+por `id_producto` se midió sin los índices que `schema.sql` ya crea
+(`idx_pedido_id_cliente`, `idx_detalle_pedido_id_producto`). Con
+esos índices el plan de pedidos es el de TP3: Bitmap Heap Scan,
+alrededor de 0,3 ms, no un Seq Scan de 25 ms. En la carga integrada
+esos dos índices se eliminan en `indices.sql` porque el compuesto
+y el covering los cubren.
+
 ---
 
 ## Parte A — Índices

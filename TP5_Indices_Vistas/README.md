@@ -33,13 +33,16 @@ TP5_Indices_Vistas/
 
 ## Cómo reproducir las pruebas
 
-1. Crear la base y cargar el esquema y los datos (parado en la raíz
-   del repositorio, en este orden):
+1. Crear la base, cargar el esquema y **después** los datos. El
+   trigger de stock va después de `data.sql`: si está activo durante
+   la carga, los ~400.000 detalles con stock aleatorio de 0 a 200
+   fallan y el `COMMIT` de `data.sql` no llega a guardarse.
 
 ```bash
 createdb food_store
 psql -d food_store -f TP1_FoodStore/schema.sql
 psql -d food_store -f TP5_Indices_Vistas/data.sql
+psql -d food_store -f TP2_Concurrencia_IA/restricciones.sql
 ```
 
 2. Confirmar el volumen de datos (se usó como referencia: 50.000
@@ -53,7 +56,9 @@ SELECT
   (SELECT count(*) FROM Detalle_Pedido) AS detalles;
 ```
 
-3. Medir cada consulta de `queries.sql` **antes** de indexar:
+3. Medir las tres consultas de `informe_mediciones.md` **antes** de
+   indexar (no usar todavía `queries.sql`: esa versión filtra
+   `eliminado` y se corre después del paso 6):
 
 ```sql
 EXPLAIN ANALYZE
@@ -80,17 +85,18 @@ y tiempos contra `informe_mediciones.md`.
    idealmente sobre una copia de la tabla o dentro de una
    transacción que luego se revierte (`BEGIN; ... ROLLBACK;`).
 
-6. Crear las vistas y verificar equivalencia:
+6. Borrado lógico, y recién ahí las vistas (filtran `eliminado`):
 
 ```bash
+psql -d food_store -f TP5_Indices_Vistas/soft_delete.sql
 psql -d food_store -f TP5_Indices_Vistas/views.sql
 ```
 
-Para cada vista, ejecutar la comparación con `EXCEPT` en ambos
-sentidos contra la consulta manual equivalente (ver ejemplos en
-`informe_mediciones.md`). El resultado esperado es 0 filas.
+Para cada vista, el `EXCEPT` en ambos sentidos se compara contra la
+consulta manual **con el mismo** `WHERE eliminado = FALSE`. El
+resultado esperado es 0 filas.
 
-7. Crear la vista materializada y medir el reporte:
+7. Crear la vista materializada (también excluye anulados) y medir:
 
 ```bash
 psql -d food_store -f TP5_Indices_Vistas/materializadas.sql
@@ -109,10 +115,9 @@ EXPLAIN ANALYZE SELECT * FROM mv_facturacion_categoria_mes;
 REFRESH MATERIALIZED VIEW CONCURRENTLY mv_facturacion_categoria_mes;
 ```
 
-9. Borrado lógico y procedimientos con `CALL`:
+9. Procedimientos con `CALL` y la función `fn_total_pedido`:
 
 ```bash
-psql -d food_store -f TP5_Indices_Vistas/soft_delete.sql
 psql -d food_store -f TP5_Indices_Vistas/procedimientos.sql
 ```
 
@@ -124,8 +129,14 @@ BEGIN;
 
 CALL sp_registrar_pedido(1500, 'EFECTIVO',
     '[{"id_producto": 1, "cantidad": 2}]'::jsonb);
+-- psql devuelve el id_pedido generado. Con ese id:
+-- SELECT fn_total_pedido(<id_pedido>);
+
 CALL sp_dar_baja_cliente(1500);
 SELECT id_cliente, eliminado FROM Cliente WHERE id_cliente = 1500;
+
+-- Un segundo CALL sp_registrar_pedido(1500, ...) debe fallar:
+-- el cliente ya está dado de baja.
 
 EXPLAIN ANALYZE
 SELECT id_pedido, fecha_hora FROM Pedido
@@ -136,9 +147,12 @@ ROLLBACK;
 ```
 
 Resultado esperado: `sp_registrar_pedido` devuelve el `id_pedido`
-generado y descuenta stock vía el trigger de TP2; `sp_dar_baja_cliente`
-deja `eliminado = TRUE` en el cliente 1500; el plan usa
-`idx_pedido_vigente_cliente_fecha`.
+generado y descuenta stock vía el trigger de TP2 (con `FOR UPDATE`);
+`SELECT fn_total_pedido(...)` devuelve el total vigente;
+`sp_dar_baja_cliente` deja `eliminado = TRUE` en el cliente 1500; el
+plan usa `idx_pedido_vigente_cliente_fecha`. Para anular un pedido
+ya cargado y reponer stock: `CALL sp_anular_pedido(<id>);` y volver
+a consultar `fn_total_pedido`, que devuelve 0.
 
 ## Flujo de trabajo con IA
 
@@ -163,5 +177,5 @@ modificó o descartó de cada propuesta de la IA está en `duia.md`.
   queda intacto como el DDL originalmente entregado y corregido en
   el TP1.
 - `procedimientos.sql` reutiliza el trigger `fn_validar_stock_pedido`
-  de `TP2_Concurrencia_IA/restricciones.sql`, así que debe aplicarse
-  después de ese script.
+  de `TP2_Concurrencia_IA/restricciones.sql`. Ese script se aplica
+  después de `data.sql` y antes de los `CALL`.

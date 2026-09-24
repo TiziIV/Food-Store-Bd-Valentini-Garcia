@@ -15,11 +15,12 @@ CREATE INDEX idx_producto_categoria_precio
 ON Producto (id_categoria, precio_actual);
 
 -- 2. Consulta 2: historial de pedidos de un cliente ordenado por
---    fecha descendente (Pedido.id_cliente = ? AND fecha_hora >= ?
---    ORDER BY fecha_hora DESC). Antes: Sort + Bitmap Heap Scan,
---    0.300 ms. Después: Index Scan sin nodo de Sort, 0.200 ms.
-CREATE INDEX idx_pedido_cliente_fecha_hora
-ON Pedido (id_cliente, fecha_hora DESC);
+--    fecha descendente. El índice que quedó en el proyecto es
+--    idx_pedido_cliente_fecha_desc, creado una sola vez en
+--    TP5_Indices_Vistas/indices.sql sobre (id_cliente, fecha_hora DESC).
+--    No se vuelve a crear acá: sería el mismo índice con otro nombre
+--    (sobreindexación, el mismo criterio con el que se descartó
+--    idx_pedido_forma_pago).
 
 -- 3. Consulta 3: ítems de Detalle_Pedido dentro de un rango de
 --    precio_unitario. Antes: Seq Scan sobre 400.000 filas,

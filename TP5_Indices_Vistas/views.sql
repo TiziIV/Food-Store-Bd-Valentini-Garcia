@@ -3,9 +3,9 @@
 -- Vistas de reporte para Food Store (Parte B)
 -- Cátedra: Base de Datos II — Unidad 3, Semana 5
 -- ============================================================
--- No modifica el modelo de datos heredado (schema.sql).
--- Verificación de equivalencia de cada vista contra su consulta
--- manual: ver informe_mediciones.md.
+-- Aplicar después de soft_delete.sql: estas vistas filtran
+-- eliminado = FALSE. Si la columna todavía no existe, el CREATE falla.
+-- Verificación de equivalencia: ver informe_mediciones.md.
 -- ============================================================
 
 -- 1. Productos vigentes con su categoría.
@@ -38,7 +38,9 @@ SELECT
     c.nombre AS nombre_cliente,
     c.correo
 FROM Pedido pe
-JOIN Cliente c ON pe.id_cliente = c.id_cliente;
+JOIN Cliente c ON pe.id_cliente = c.id_cliente
+WHERE pe.eliminado = FALSE
+  AND c.eliminado = FALSE;
 
 -- 3. Detalle de pedido con el nombre del producto y el subtotal
 --    calculado (cantidad × precio_unitario).
@@ -51,4 +53,7 @@ SELECT
     dp.precio_unitario,
     (dp.cantidad * dp.precio_unitario) AS subtotal
 FROM Detalle_Pedido dp
-JOIN Producto p ON dp.id_producto = p.id_producto;
+JOIN Pedido pe ON pe.id_pedido = dp.id_pedido
+JOIN Producto p ON dp.id_producto = p.id_producto
+WHERE dp.eliminado = FALSE
+  AND pe.eliminado = FALSE;

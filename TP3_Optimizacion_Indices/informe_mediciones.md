@@ -16,9 +16,7 @@ SELECT
   (SELECT count(*) FROM Detalle_Pedido) AS detalles;
 ```
 
-*(La entrega original de este TP no incluía esta verificación de
-volumen — señalado en la corrección del profesor — por lo que se
-agrega aquí como parte de la reorganización.)*
+*(Verificación de volumen de la carga masiva.)*
 
 ## Parte 2 — Consultas lentas, EXPLAIN ANALYZE y optimización medida
 
@@ -32,7 +30,11 @@ agrega aquí como parte de la reorganización.)*
 ### Consulta 2 — Pedidos por cliente ordenados por fecha
 
 - **Antes:** `Sort` (quicksort) sobre `Bitmap Heap Scan` — cost `42.11..42.11` — 0.300 ms — 11 filas descartadas, con `Sort Key` explícito.
-- **Cambio aplicado:** `CREATE INDEX idx_pedido_cliente_fecha_hora ON Pedido (id_cliente, fecha_hora DESC);`
+- **Cambio aplicado:** índice `(id_cliente, fecha_hora DESC)`. En la
+  carga integrada se crea una sola vez, como
+  `idx_pedido_cliente_fecha_desc` en `TP5_Indices_Vistas/indices.sql`
+  (el mismo índice no se vuelve a crear con el nombre
+  `idx_pedido_cliente_fecha_hora`).
 - **Después:** `Index Scan` sin nodo `Sort` — cost `0.42..8.45` — 0.200 ms — 0 filas descartadas.
 - **Mejora:** 79,9% menos costo estimado.
 
@@ -74,7 +76,6 @@ resolver la consulta."
 |---|---|---|---|---|
 | García - Valentini | Indexación B-Tree sobre precio_unitario (`idx_detalle_pedido_precio`), pasando de Seq Scan a Bitmap Index Scan. | 129.200 | 16.900 | 7,6x |
 
-*Nota: la entrega original reportaba en la Parte 5 exactamente el
-mismo resultado ya verificado en la Parte 2 (Consulta 3), sin una
-consulta lenta común distinta para la competencia — señalado también
-en la corrección del profesor.*
+Los tiempos de este informe que terminan en `.x00` son cifras
+redondeadas del informe de la semana, no el texto crudo de
+`EXPLAIN ANALYZE`.

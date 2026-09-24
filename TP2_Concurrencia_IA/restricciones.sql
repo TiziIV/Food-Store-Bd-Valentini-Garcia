@@ -74,10 +74,15 @@ CREATE TRIGGER trg_bloquear_modificacion_detalle_pedido
 
 -- -----------------------------------------------------------------------------
 -- R5: Garantia de stock suficiente al insertar un Detalle_Pedido.
--- Regla original de la propuesta de OpenCode: se mantiene sin cambios
--- porque ya era 100% compatible con el esquema real (usa Producto.stock,
--- Detalle_Pedido.id_producto y Detalle_Pedido.cantidad, columnas que si
--- existen en Food Store).
+-- Bloquea la fila de Producto con FOR UPDATE: si dos ventas del mismo
+-- producto entran juntas, la segunda espera a que la primera confirme
+-- o revierta, y recién ahí lee el stock ya descontado. Sin ese bloqueo
+-- las dos leerían el mismo stock y la segunda fallaría recién en el
+-- CHECK stock >= 0, con un mensaje que no dice "stock insuficiente".
+--
+-- Este trigger se aplica DESPUÉS de data.sql. Si está activo durante
+-- la carga masiva, miles de detalles fallan porque el stock aleatorio
+-- (0 a 200) no alcanza para todos los pedidos.
 -- -----------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION fn_validar_stock_pedido()
 RETURNS TRIGGER AS $$
@@ -86,7 +91,12 @@ DECLARE
 BEGIN
     SELECT stock INTO v_stock_disponible
     FROM Producto
-    WHERE id_producto = NEW.id_producto;
+    WHERE id_producto = NEW.id_producto
+    FOR UPDATE;
+
+    IF v_stock_disponible IS NULL THEN
+        RAISE EXCEPTION 'Producto % no existe', NEW.id_producto;
+    END IF;
 
     IF v_stock_disponible < NEW.cantidad THEN
         RAISE EXCEPTION 'Stock insuficiente para el producto ID %: Disponible %, Solicitado %',

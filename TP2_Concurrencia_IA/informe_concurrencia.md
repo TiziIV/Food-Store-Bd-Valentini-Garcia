@@ -104,7 +104,7 @@ Ocurre cuando la Transacción 1 bloquea el Recurso A y espera el Recurso B, mien
 
 ### Reglas de prevención implementadas:
 1. **Orden determinista de acceso:** Siempre bloquear o actualizar tablas y registros en un orden prefijado (por ejemplo, orden ascendente de `id_producto`).
-2. **Uso de timeouts:** Configurar parámetros de `lock_timeout` o `statement_timeout` para evitar cuelgues indefinidos en el pool de conexiones.
+2. **Uso de timeouts:** configurar `lock_timeout` o `statement_timeout` para que una espera de bloqueo no quede colgada.
 3. **Manejo de excepciones:** Diseñar la capa de persistencia para capturar el código de error `40P01` (deadlock_detected) y reintentar la transacción con backoff exponencial.
 
 ---
@@ -112,3 +112,104 @@ Ocurre cuando la Transacción 1 bloquea el Recurso A y espera el Recurso B, mien
 ## 5. Conclusiones
 * `READ COMMITTED` es adecuado para operaciones estándar de bajo conflicto, pero crítico en operaciones de inventario si no se refuerza con bloqueos explícitos (`FOR UPDATE`).
 * `REPEATABLE READ` garantiza consistencia total para reportes financieros y auditorías sin generar bloqueos destructivos gracias al MVCC de PostgreSQL.
+
+---
+
+## 6. Evidencia: atomicidad, dos sesiones y reintento 40001
+
+Los tiempos de las secciones anteriores no se reimprimen acá. Lo que
+sigue es el guion que se corre en `psql` y el mensaje que devuelve
+el motor. El trigger de stock (`fn_validar_stock_pedido`) lee la
+fila de `Producto` con `FOR UPDATE`: la segunda venta espera y, si
+no alcanza, falla con `Stock insuficiente`, no con el `CHECK`
+`stock >= 0`.
+
+### Atomicidad con ROLLBACK
+
+```sql
+BEGIN;
+INSERT INTO Cliente (nombre, correo)
+VALUES ('Prueba rollback', 'rollback-atomicidad@foodstore.test');
+ROLLBACK;
+
+SELECT count(*) AS filas
+FROM Cliente
+WHERE correo = 'rollback-atomicidad@foodstore.test';
+```
+
+Salida del `SELECT`: `filas = 0`. El `INSERT` no quedó.
+
+### Pérdida de actualización (dos sesiones, READ COMMITTED)
+
+Sesión A:
+
+```sql
+BEGIN;
+SELECT stock FROM Producto WHERE id_producto = 1 FOR UPDATE;
+-- anotar el stock, por ejemplo 40
+UPDATE Producto SET stock = stock - 5 WHERE id_producto = 1;
+-- no hacer COMMIT todavía
+```
+
+Sesión B, al mismo tiempo:
+
+```sql
+BEGIN;
+SELECT stock FROM Producto WHERE id_producto = 1 FOR UPDATE;
+-- queda esperando el bloqueo de A
+```
+
+Sesión A: `COMMIT;`
+
+Sesión B continúa, lee el stock ya descontado (35, no 40) y recién
+ahí descuenta. Sin `FOR UPDATE` las dos habrían leído 40.
+
+### SERIALIZABLE y reintento ante 40001
+
+Sesión A y sesión B, las dos en `SERIALIZABLE`, actualizan la misma
+fila de `Producto` y hacen `COMMIT`. La que llega segunda recibe:
+
+```text
+ERROR:  could not serialize access due to concurrent update
+SQLSTATE: 40001
+```
+
+El reintento captura ese estado y vuelve a correr la transacción:
+
+```sql
+DO $$
+DECLARE
+    v_intentos INT := 0;
+BEGIN
+    LOOP
+        v_intentos := v_intentos + 1;
+        BEGIN
+            UPDATE Producto
+            SET stock = stock - 1
+            WHERE id_producto = 1 AND stock >= 1;
+            EXIT;
+        EXCEPTION
+            WHEN serialization_failure THEN  -- SQLSTATE 40001
+                IF v_intentos >= 3 THEN
+                    RAISE;
+                END IF;
+        END;
+    END LOOP;
+END $$;
+```
+
+Ese bloque va dentro de `BEGIN ISOLATION LEVEL SERIALIZABLE`
+en cada sesión. Si las dos commitean a la vez, una termina y la
+otra entra al `EXCEPTION` y reintenta.
+
+### Interbloqueo (40P01)
+
+Sesión A bloquea el producto 1 y después pide el 2. Sesión B bloquea
+el 2 y después pide el 1. Una de las dos recibe:
+
+```text
+ERROR:  deadlock detected
+SQLSTATE: 40P01
+```
+
+El orden fijo por `id_producto` ascendente evita ese cruce.

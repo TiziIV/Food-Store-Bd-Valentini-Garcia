@@ -14,11 +14,11 @@ CREATE INDEX idx_producto_activo_categoria
 ON Producto (id_producto, id_categoria)
 WHERE activo = TRUE;
 
--- 1b. Covering index sobre Detalle_Pedido: permite calcular el
---     subtotal (cantidad * precio_unitario) sin volver al heap.
-CREATE INDEX idx_detalle_pedido_facturacion
-ON Detalle_Pedido (id_producto)
-INCLUDE (cantidad, precio_unitario);
+-- 1b. Covering index sobre Detalle_Pedido. El que quedó en el
+--     proyecto es idx_detalle_pedido_prod_covering, creado una sola
+--     vez en TP5_Indices_Vistas/indices.sql:
+--     (id_producto) INCLUDE (cantidad, precio_unitario).
+--     No se duplica acá.
 
 -- Después de 1a + 1b: Hash Join asistido por Index Only Scan,
 -- 38.400 ms (73,6% más rápido).

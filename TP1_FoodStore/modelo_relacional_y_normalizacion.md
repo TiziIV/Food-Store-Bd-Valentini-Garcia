@@ -4,8 +4,13 @@ Trabajo Práctico N.º 1 — Base de Datos I — Proyecto integrador Food Store
 
 Este documento reúne las Partes 1, 2 y 3 del TP1 (diccionario de
 entidades, derivación al modelo relacional y normalización hasta
-BCNF). La Parte 4 (DDL) es [`schema.sql`](schema.sql), y el diagrama
-ER de la Parte 1 es [`diagrama-er.png`](diagrama-er.png).
+BCNF). La Parte 4 (DDL) es [`schema.sql`](schema.sql).
+
+[`diagrama-er.png`](diagrama-er.png) es el diagrama físico de
+dbdiagram (notación pata de gallo): muestra las tablas ya
+resueltas y la cardinalidad. La participación (total o parcial) y
+la relación N:M Pedido–Producto **antes** de crear Detalle_Pedido
+están en el texto de esta Parte 1, no en el png.
 
 ## Parte 1 — Modelo entidad-relación
 
@@ -24,7 +29,7 @@ ER de la Parte 1 es [`diagrama-er.png`](diagrama-er.png).
 | Producto | nombre_producto | Texto | Nombre del producto. |
 | Producto | precio_actual | Numérico | Precio de lista vigente del producto. |
 | Producto | stock | Numérico (entero) | Cantidad disponible en stock (no negativo — R5). |
-| Producto | activo | Booleano | Marca de baja lógica (Regla R7). |
+| Producto | activo | Booleano | Disponibilidad de catálogo: TRUE = se puede vender. No es el borrado lógico. |
 | Producto | id_categoria | Numérico | Clave foránea que referencia a la categoría. |
 | Pedido | id_pedido | Numérico | Clave primaria autogenerada. |
 | Pedido | fecha_hora | Fecha/Hora | Momento exacto en que se realizó el pedido. |
@@ -44,9 +49,13 @@ ER de la Parte 1 es [`diagrama-er.png`](diagrama-er.png).
 - **Cliente → Pedido (1:N):** un cliente puede no haber hecho pedidos
   aún (participación parcial) o haber hecho varios. Un pedido pertenece
   exactamente a un cliente (participación total).
-- **Pedido ↔ Producto (N:M):** se resuelve con la entidad intermedia
-  Detalle_Pedido. Un pedido incluye varios productos y un producto se
-  vende en muchos pedidos.
+- **Pedido ↔ Producto (N:M), antes de resolverla:** un pedido incluye
+  varios productos y un producto aparece en muchos pedidos. No es 1:N.
+  La participación de ambos lados es total en el negocio actual (un
+  pedido tiene al menos un producto; el producto de una línea existe).
+  **Después de resolverla:** la entidad asociativa Detalle_Pedido
+  parte la N:M en dos 1:N (Pedido → Detalle_Pedido y Producto →
+  Detalle_Pedido). Ahí viven `cantidad` y `precio_unitario`.
 
 ### Respuestas a las preguntas guía
 
@@ -158,25 +167,24 @@ solo de `nro_pedido` (no del producto); `categoria` depende solo de
 ### Paso 5 — Verificación y corrección de 3FN
 
 Al separar cabecera (Pedido), catálogo (Producto) y detalle
-(Detalle_Pedido) se eliminan las dependencias transitivas principales.
-El `subtotal` es un atributo derivado (`cant * precio_unitario`), lo que
-genera una dependencia transitiva/redundancia calculable que se acepta
-por motivos de rendimiento y trazabilidad histórica (ver pregunta de
-integración más abajo).
+(Detalle_Pedido) se eliminan las dependencias transitivas de la
+planilla. El `subtotal` (`cant * precio_unitario`) depende de otros
+atributos no clave de la misma fila: guardarlo viola 3FN. No se
+persiste.
 
 ### Paso 6 — Verificación de BCNF
 
-En las tres tablas resultantes (Pedido, Producto, Detalle_Pedido) todo
-determinante es una clave candidata: las claves primarias determinan
-unívocamente al resto de los atributos sin solapamientos anómalos.
-Cumplen BCNF.
+Sin `subtotal`, en Pedido, Producto y Detalle_Pedido todo determinante
+es clave candidata. Ese es el esquema que implementa `schema.sql`, y
+cumple BCNF. Si se volviera a guardar `subtotal`, Detalle_Pedido
+dejaría de estar en 3FN y por lo tanto tampoco en BCNF.
 
 ### Paso 7 — Conjunto final de tablas normalizadas
 
 1. `Pedido (nro_pedido PK, fecha, cliente, forma_pago)`
 2. `Producto (producto PK, categoria)`
-3. `Detalle_Pedido (nro_pedido FK, producto FK, cant, precio_unitario,
-   subtotal)` — PK compuesta `(nro_pedido, producto)`.
+3. `Detalle_Pedido (nro_pedido FK, producto FK, cant, precio_unitario)`
+   — PK compuesta `(nro_pedido, producto)`. Sin `subtotal`.
 
 ### Preguntas de integración
 
@@ -190,7 +198,7 @@ estructura base, pero modelar desde un enunciado permite anticipar
 datos necesarios (correo, stock) que el papel no mostraba.
 
 **Sobre el subtotal.**
-Es calculable como `cantidad * precio_unitario`. Almacenarlo viola en
-sentido estricto la normalización por redundancia, pero en la práctica
-comercial se guarda para asegurar la trazabilidad histórica inalterable
-de la factura ante futuros cambios en el precio de lista.
+Es `cantidad * precio_unitario`. Guardarlo violaría 3FN, así que
+`schema.sql` no tiene esa columna. El precio histórico ya queda
+congelado en `precio_unitario`; el subtotal se calcula en
+`vista_detalle_pedido_producto`.

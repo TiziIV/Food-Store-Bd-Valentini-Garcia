@@ -3,10 +3,12 @@
 -- Vista materializada de facturación para Food Store (Parte C)
 -- Cátedra: Base de Datos II — Unidad 3, Semana 5
 -- ============================================================
--- No modifica el modelo de datos heredado (schema.sql).
--- Medición de tiempos y justificación de la frecuencia de
--- refresco: ver informe_mediciones.md.
+-- Aplicar después de soft_delete.sql. Excluye pedidos y líneas
+-- anuladas: si no, una baja lógica seguiría sumando en el reporte.
+-- Medición: ver informe_mediciones.md (810,45 ms → 1,15 ms).
 -- ============================================================
+
+DROP MATERIALIZED VIEW IF EXISTS mv_facturacion_categoria_mes;
 
 -- Reporte agregado: facturación por categoría y por mes.
 -- Se crea WITH DATA y con un índice único sobre (categoría, mes)
@@ -22,6 +24,8 @@ FROM Detalle_Pedido dp
 JOIN Producto  p  ON dp.id_producto = p.id_producto
 JOIN Categoria c  ON p.id_categoria = c.id_categoria
 JOIN Pedido    pe ON dp.id_pedido = pe.id_pedido
+WHERE dp.eliminado = FALSE
+  AND pe.eliminado = FALSE
 GROUP BY c.id_categoria, c.nombre_categoria, date_trunc('month', pe.fecha_hora)
 WITH DATA;
 

@@ -9,6 +9,10 @@
 -- confundirlo con el "activo" de catálogo, que tiene otra semántica:
 -- un producto inactivo puede volver a activarse; un registro
 -- eliminado lógicamente representa una baja).
+-- Polaridad: activo = TRUE significa "se puede vender";
+-- eliminado = TRUE significa "dado de baja". No son el mismo flag
+-- invertido. Un reporte de vigencia usa activo = TRUE en Producto
+-- y eliminado = FALSE en Cliente, Pedido y Detalle_Pedido.
 --
 -- No se modifica ../TP1_FoodStore/schema.sql: esta es una ampliación
 -- posterior sobre el mismo esquema, pensada para aplicarse después
@@ -24,11 +28,21 @@ ALTER TABLE Cliente
     ADD COLUMN eliminado  BOOLEAN NOT NULL DEFAULT FALSE,
     ADD COLUMN created_at TIMESTAMPTZ NOT NULL DEFAULT now();
 
+-- El UNIQUE de schema.sql impide reutilizar el correo de un cliente
+-- dado de baja. Se reemplaza por un único parcial: el correo identifica
+-- a un cliente vigente, no a uno anulado.
+ALTER TABLE Cliente DROP CONSTRAINT uq_cliente_correo;
+
+CREATE UNIQUE INDEX uq_cliente_correo_vigente
+ON Cliente (correo)
+WHERE eliminado = FALSE;
+
 -- ---------- Pedido ----------
 -- Pedido ya tiene fecha_hora (cumple el rol de "created_at"), por
 -- lo que solo se agrega la marca de baja lógica. Un pedido dado de
--- baja representa, por ejemplo, una venta anulada que no debe
--- desaparecer del historial ni de la facturación ya emitida.
+-- baja representa una venta anulada: queda en la tabla para el
+-- historial, y las vistas, la materializada y las consultas de
+-- facturación la excluyen con eliminado = FALSE.
 ALTER TABLE Pedido
     ADD COLUMN eliminado BOOLEAN NOT NULL DEFAULT FALSE;
 
@@ -61,6 +75,28 @@ WHERE eliminado = FALSE;
 CREATE INDEX idx_detalle_pedido_vigente
 ON Detalle_Pedido (id_pedido)
 WHERE eliminado = FALSE;
+
+-- Al anular una línea se devuelve el stock que el trigger de TP2
+-- había descontado en el INSERT. No toca cantidad ni precio_unitario,
+-- así que no choca con trg_bloquear_modificacion_detalle_pedido.
+CREATE OR REPLACE FUNCTION fn_devolver_stock_al_anular()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF OLD.eliminado = FALSE AND NEW.eliminado = TRUE THEN
+        UPDATE Producto
+        SET stock = stock + OLD.cantidad
+        WHERE id_producto = OLD.id_producto;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_devolver_stock_al_anular ON Detalle_Pedido;
+
+CREATE TRIGGER trg_devolver_stock_al_anular
+    BEFORE UPDATE ON Detalle_Pedido
+    FOR EACH ROW
+    EXECUTE FUNCTION fn_devolver_stock_al_anular();
 
 -- ============================================================
 -- Impacto sobre consultas existentes: ejemplo antes/después

@@ -3,9 +3,23 @@
 -- Procedimientos almacenados en PL/pgSQL, invocados con CALL
 -- (PostgreSQL 16+).
 -- ============================================================
--- Requiere haber aplicado antes soft_delete.sql (usa la columna
--- Cliente.eliminado en sp_dar_baja_cliente).
+-- Requiere haber aplicado antes soft_delete.sql.
 -- ============================================================
+
+-- Función invocable (no es un trigger): total vigente de un pedido.
+-- Si el pedido está anulado, devuelve 0: no debe seguir facturando.
+CREATE OR REPLACE FUNCTION fn_total_pedido(p_id_pedido BIGINT)
+RETURNS NUMERIC
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(SUM(dp.cantidad * dp.precio_unitario), 0)
+    FROM Detalle_Pedido dp
+    JOIN Pedido pe ON pe.id_pedido = dp.id_pedido
+    WHERE dp.id_pedido = p_id_pedido
+      AND dp.eliminado = FALSE
+      AND pe.eliminado = FALSE;
+$$;
 
 -- ------------------------------------------------------------
 -- Procedimiento 1: registrar un pedido completo con sus líneas de
@@ -29,6 +43,14 @@ DECLARE
 BEGIN
     IF jsonb_array_length(p_items) = 0 THEN
         RAISE EXCEPTION 'Un pedido debe tener al menos un item';
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM Cliente
+        WHERE id_cliente = p_id_cliente
+          AND eliminado = FALSE
+    ) THEN
+        RAISE EXCEPTION 'Cliente % no existe o está dado de baja', p_id_cliente;
     END IF;
 
     INSERT INTO Pedido (forma_pago, id_cliente)
@@ -55,7 +77,31 @@ END;
 $$;
 
 -- ------------------------------------------------------------
--- Procedimiento 2: dar de baja lógica a un cliente (punto 6 + 9
+-- Procedimiento 2: anular un pedido. Marca las líneas como
+-- eliminadas (el trigger devuelve el stock) y después el pedido.
+-- ------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE sp_anular_pedido(p_id_pedido BIGINT)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE Detalle_Pedido
+    SET eliminado = TRUE
+    WHERE id_pedido = p_id_pedido
+      AND eliminado = FALSE;
+
+    UPDATE Pedido
+    SET eliminado = TRUE
+    WHERE id_pedido = p_id_pedido
+      AND eliminado = FALSE;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Pedido % no existe o ya estaba anulado', p_id_pedido;
+    END IF;
+END;
+$$;
+
+-- ------------------------------------------------------------
+-- Procedimiento 3: dar de baja lógica a un cliente (punto 6 + 9
 -- combinados: el procedimiento es el único camino soportado para
 -- aplicar el borrado lógico, en vez de dejar que cada consulta
 -- escriba su propio UPDATE).
@@ -91,7 +137,9 @@ $$;
 -- -- El resultado de la llamada devuelve el id_pedido generado en p_id_pedido.
 --
 -- CALL sp_dar_baja_cliente(1500);
--- -- Verificar:
--- SELECT id_cliente, eliminado FROM Cliente WHERE id_cliente = 1500;
+-- SELECT fn_total_pedido(<id_pedido>);
+-- CALL sp_anular_pedido(<id_pedido>);
+-- SELECT fn_total_pedido(<id_pedido>);  -- 0: el pedido anulado no factura
+-- SELECT stock FROM Producto WHERE id_producto = 1;  -- el stock volvió
 --
 -- ROLLBACK;
