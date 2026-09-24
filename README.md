@@ -51,10 +51,14 @@ Food-Store-Bd-Valentini-Garcia/
 │   ├── queries.sql
 │   ├── duia.md
 │   └── informe_mediciones.md
-└── TP5_Indices_Vistas/             (Semana 5 — plan de indexado, vistas, vista materializada)
-    ├── data.sql, queries.sql
-    ├── indices.sql, views.sql, materializadas.sql
-    ├── specs/, duia.md, informe_mediciones.md
+├── TP5_Indices_Vistas/             (Semana 5 — plan de indexado, vistas, vista materializada)
+│   ├── data.sql, queries.sql
+│   ├── indices.sql, views.sql, materializadas.sql
+│   ├── specs/, duia.md, informe_mediciones.md
+│   └── README.md
+└── Ampliacion_Parcial_Final/       (cierra los puntos 6 y 9 del checklist del parcial)
+    ├── soft_delete.sql             (borrado lógico en Cliente, Pedido, Detalle_Pedido)
+    ├── procedimientos.sql          (sp_registrar_pedido, sp_dar_baja_cliente — CALL)
     └── README.md
 ```
 
@@ -93,6 +97,10 @@ psql -d food_store -f TP4_Reportes_Analiticos/indices.sql
 psql -d food_store -f TP5_Indices_Vistas/indices.sql
 psql -d food_store -f TP5_Indices_Vistas/views.sql
 psql -d food_store -f TP5_Indices_Vistas/materializadas.sql
+
+# Ampliación — borrado lógico y procedimientos con CALL (puntos 6 y 9)
+psql -d food_store -f Ampliacion_Parcial_Final/soft_delete.sql
+psql -d food_store -f Ampliacion_Parcial_Final/procedimientos.sql
 ```
 
 Cada carpeta tiene su propio detalle de verificación (`EXPLAIN

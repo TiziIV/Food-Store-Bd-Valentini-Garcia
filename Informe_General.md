@@ -133,10 +133,10 @@ Resumen rápido (detalle de evidencia debajo de la tabla):
 | 3 | Normalización hasta 3FN/BCNF | Cubierto |
 | 4 | DDL completo | Cubierto |
 | 5 | DML y consultas (JOIN, agregación, subconsultas, ventana) | Cubierto |
-| 6 | Vistas, funciones y procedimientos en PL/pgSQL | Parcial |
+| 6 | Vistas, funciones y procedimientos en PL/pgSQL | Cubierto |
 | 7 | Reglas de negocio con CHECK, UNIQUE y triggers | Cubierto |
 | 8 | Transacciones y control de concurrencia | Cubierto |
-| 9 | Borrado lógico (soft delete) | Parcial |
+| 9 | Borrado lógico (soft delete) | Cubierto |
 
 **1. Modelo ER** (entidades, atributos, claves, cardinalidad,
 participación) — [`TP1_FoodStore/diagrama-er.png`](TP1_FoodStore/diagrama-er.png)
@@ -158,14 +158,16 @@ BY/HAVING, funciones de ventana) —
 `SUM`, subconsultas correlacionadas y no correlacionadas,
 `DENSE_RANK() OVER`.
 
-**6. Vistas, funciones y procedimientos en PL/pgSQL — Parcial.**
-Vistas cubiertas en [`TP5_Indices_Vistas/views.sql`](TP5_Indices_Vistas/views.sql)
-y vista materializada en [`materializadas.sql`](TP5_Indices_Vistas/materializadas.sql).
-Las funciones/triggers en PL/pgSQL están en
-[`TP2/restricciones.sql`](TP2_Concurrencia_IA/restricciones.sql); **no
-hay todavía un procedimiento invocado con `CALL`** — está previsto
-para la próxima entrega (Semana 6), según lo documentado en
-`TP5_Indices_Vistas/README.md`.
+**6. Vistas, funciones y procedimientos en PL/pgSQL.** Vistas en
+[`TP5_Indices_Vistas/views.sql`](TP5_Indices_Vistas/views.sql) y vista
+materializada en [`materializadas.sql`](TP5_Indices_Vistas/materializadas.sql).
+Funciones-trigger en PL/pgSQL en
+[`TP2/restricciones.sql`](TP2_Concurrencia_IA/restricciones.sql).
+Procedimientos invocados con `CALL` en
+[`Ampliacion_Parcial_Final/procedimientos.sql`](Ampliacion_Parcial_Final/procedimientos.sql):
+`sp_registrar_pedido` (carga atómica de un pedido con JSONB,
+reutilizando el trigger de validación de stock) y
+`sp_dar_baja_cliente` (aplica el borrado lógico del punto 9).
 
 **7. Reglas de negocio con CHECK, UNIQUE y triggers** —
 `CHECK`/`UNIQUE` en `schema.sql` (Parte 1) y en `TP2/restricciones.sql`;
@@ -177,14 +179,16 @@ aislamiento, control de concurrencia) —
 [`TP2_Concurrencia_IA/informe_concurrencia.md`](TP2_Concurrencia_IA/informe_concurrencia.md):
 tres escenarios con dos sesiones, verificados en el motor.
 
-**9. Borrado lógico (soft delete) — Parcial.** Implementado en
-`Producto.activo`, con índice parcial `WHERE activo = TRUE`
-(`TP5_Indices_Vistas/indices.sql`) y filtro reflejado en las
-vistas/consultas de reporte. **No está aplicado todavía en `Cliente`,
-`Pedido` ni `Detalle_Pedido`** — queda señalado como ampliación
-pendiente del modelo para la próxima entrega.
+**9. Borrado lógico (soft delete).** Base en `Producto.activo`, con
+índice parcial `WHERE activo = TRUE` (`TP5_Indices_Vistas/indices.sql`)
+reflejado en las vistas/consultas de reporte. Extendido a `Cliente`,
+`Pedido` y `Detalle_Pedido` en
+[`Ampliacion_Parcial_Final/soft_delete.sql`](Ampliacion_Parcial_Final/soft_delete.sql),
+con sus propios índices parciales (`idx_pedido_vigente_cliente_fecha`,
+`idx_detalle_pedido_vigente`) y el ejemplo concreto de cómo cambia la
+consulta de "clientes sin pedidos" de TP3 al aplicar el filtro de
+vigencia en ambas tablas.
 
-Los puntos 6 y 9 quedan marcados como parciales de forma explícita
-para que la ausencia de evidencia no se confunda con un intento de
-ocultarla: son ampliaciones planificadas para la continuación del TPI
-en las unidades siguientes.
+Ver [`Ampliacion_Parcial_Final/README.md`](Ampliacion_Parcial_Final/README.md)
+para el orden de aplicación y los pasos de verificación de estos dos
+puntos con `CALL` y `EXPLAIN ANALYZE`.
