@@ -58,7 +58,17 @@ SELECT
 
 3. Medir las tres consultas de `informe_mediciones.md` **antes** de
    indexar (no usar todavía `queries.sql`: esa versión filtra
-   `eliminado` y se corre después del paso 6):
+   `eliminado` y se corre después del paso 6).
+
+   El informe documenta Seq Scan sobre pedidos/detalles. Para
+   reproducir esa línea base hay que sacar antes los índices simples
+   que ya crea `schema.sql` (si no, el plan usa Bitmap Heap Scan y
+   no coincide con el "antes" del informe):
+
+```sql
+DROP INDEX IF EXISTS idx_pedido_id_cliente;
+DROP INDEX IF EXISTS idx_detalle_pedido_id_producto;
+```
 
 ```sql
 EXPLAIN ANALYZE

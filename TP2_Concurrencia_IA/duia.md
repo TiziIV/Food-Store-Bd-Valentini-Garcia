@@ -40,3 +40,13 @@ proceso: especificar primero en Kiro, generar con OpenCode, leer el
 diff línea por línea antes de aplicarlo, probar sobre una copia de la
 base siguiendo `protocolo_seguridad.md`, y versionar cada pieza en un
 commit separado y descriptivo.
+
+## Revisión posterior de la entrega (Cursor)
+
+| Campo | Registro documentado |
+|---|---|
+| Herramienta | Cursor (agente en el IDE), sobre el SQL e informe ya armados con Kiro/OpenCode |
+| Para qué | Revisión de la entrega parcial: detectar huecos de concurrencia y remediación |
+| Qué detectó / propuso | Que el trigger de stock leía sin `FOR UPDATE`; que un `DO` con `EXCEPTION WHEN serialization_failure` reintenta dentro del mismo snapshot (no sirve ante `40001`); que la demo de atomicidad debía usar `sp_registrar_pedido` y no un `INSERT` suelto |
+| Qué se aceptó | `FOR UPDATE` en `fn_validar_stock_pedido`; sección 6 del informe con atomicidad vía `CALL`, reintento **desde el cliente** con `BEGIN` nuevo, y mensajes `40001` / `40P01`; alineación del nombre de base a `food_store_dev` |
+| Qué se descartó | El bloque `DO $$ ... EXCEPTION WHEN serialization_failure` como “evidencia” de reintento: engaña porque falla las N veces sin cambiar de transacción |

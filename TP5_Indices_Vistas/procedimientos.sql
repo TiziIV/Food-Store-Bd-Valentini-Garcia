@@ -6,19 +6,38 @@
 -- Requiere haber aplicado antes soft_delete.sql.
 -- ============================================================
 
--- Función invocable (no es un trigger): total vigente de un pedido.
--- Si el pedido está anulado, devuelve 0: no debe seguir facturando.
+-- Función invocable en PL/pgSQL (no es un trigger): total vigente
+-- de un pedido. Si el pedido no existe, lanza excepción. Si está
+-- anulado, devuelve 0: no debe seguir facturando.
 CREATE OR REPLACE FUNCTION fn_total_pedido(p_id_pedido BIGINT)
 RETURNS NUMERIC
-LANGUAGE sql
+LANGUAGE plpgsql
 STABLE
 AS $$
+DECLARE
+    v_eliminado BOOLEAN;
+    v_total NUMERIC;
+BEGIN
+    SELECT pe.eliminado INTO v_eliminado
+    FROM Pedido pe
+    WHERE pe.id_pedido = p_id_pedido;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Pedido % no existe', p_id_pedido;
+    END IF;
+
+    IF v_eliminado THEN
+        RETURN 0;
+    END IF;
+
     SELECT COALESCE(SUM(dp.cantidad * dp.precio_unitario), 0)
+    INTO v_total
     FROM Detalle_Pedido dp
-    JOIN Pedido pe ON pe.id_pedido = dp.id_pedido
     WHERE dp.id_pedido = p_id_pedido
-      AND dp.eliminado = FALSE
-      AND pe.eliminado = FALSE;
+      AND dp.eliminado = FALSE;
+
+    RETURN v_total;
+END;
 $$;
 
 -- ------------------------------------------------------------
@@ -57,7 +76,14 @@ BEGIN
     VALUES (p_forma_pago, p_id_cliente)
     RETURNING id_pedido INTO p_id_pedido;
 
-    FOR v_item IN SELECT * FROM jsonb_array_elements(p_items)
+    -- Orden fijo por id_producto: con FOR UPDATE en el trigger de
+    -- stock, dos pedidos con los mismos productos en distinto orden
+    -- se interbloquearían (40P01). El informe de concurrencia pide
+    -- este mismo criterio.
+    FOR v_item IN
+        SELECT value
+        FROM jsonb_array_elements(p_items) AS t(value)
+        ORDER BY (value->>'id_producto')::BIGINT
     LOOP
         INSERT INTO Detalle_Pedido (id_pedido, id_producto, cantidad, precio_unitario)
         SELECT
@@ -129,17 +155,29 @@ $$;
 
 -- BEGIN;
 --
+-- -- Atomicidad: un ítem sin stock no deja pedido a medias
+-- SELECT stock FROM Producto WHERE id_producto = 1;
 -- CALL sp_registrar_pedido(
 --     1500,
 --     'EFECTIVO',
---     '[{"id_producto": 1, "cantidad": 2}, {"id_producto": 3, "cantidad": 1}]'::jsonb
+--     '[{"id_producto": 1, "cantidad": 2}, {"id_producto": 1, "cantidad": 999999}]'::jsonb
 -- );
--- -- El resultado de la llamada devuelve el id_pedido generado en p_id_pedido.
+-- -- ERROR Stock insuficiente; count de pedidos recientes del cliente = 0;
+-- -- stock de producto 1 intacto.
 --
--- CALL sp_dar_baja_cliente(1500);
+-- CALL sp_registrar_pedido(
+--     1500,
+--     'EFECTIVO',
+--     '[{"id_producto": 3, "cantidad": 1}, {"id_producto": 1, "cantidad": 2}]'::jsonb
+-- );
+-- -- Ítems se insertan ordenados por id_producto (1 antes que 3).
+-- -- El resultado de la llamada devuelve el id_pedido en p_id_pedido.
+--
 -- SELECT fn_total_pedido(<id_pedido>);
 -- CALL sp_anular_pedido(<id_pedido>);
--- SELECT fn_total_pedido(<id_pedido>);  -- 0: el pedido anulado no factura
--- SELECT stock FROM Producto WHERE id_producto = 1;  -- el stock volvió
+-- SELECT fn_total_pedido(<id_pedido>);  -- 0
+-- SELECT stock FROM Producto WHERE id_producto = 1;  -- repuesto (stock_descontado)
+--
+-- CALL sp_dar_baja_cliente(1500);
 --
 -- ROLLBACK;

@@ -5,6 +5,9 @@
 -- ============================================================
 -- Aplicar después de soft_delete.sql. Excluye pedidos y líneas
 -- anuladas: si no, una baja lógica seguiría sumando en el reporte.
+-- No filtra Cliente.eliminado: una venta vigente de un cliente
+-- después dado de baja sigue contando en facturación (distinto de
+-- vista_pedidos_cliente, que oculta esos pedidos a propósito).
 -- Medición: ver informe_mediciones.md (810,45 ms → 1,15 ms).
 -- ============================================================
 

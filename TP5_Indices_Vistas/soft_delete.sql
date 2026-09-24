@@ -55,34 +55,66 @@ ALTER TABLE Pedido
 ALTER TABLE Detalle_Pedido
     ADD COLUMN eliminado BOOLEAN NOT NULL DEFAULT FALSE;
 
+-- Marca si el trigger de stock descontó unidades al insertar la
+-- línea. La carga masiva (data.sql) corre ANTES de ese trigger, así
+-- que esas filas quedan en FALSE: anularlas no debe reponer stock
+-- que nunca se descontó. Solo los INSERT posteriores (p. ej.
+-- sp_registrar_pedido) ponen TRUE.
+ALTER TABLE Detalle_Pedido
+    ADD COLUMN stock_descontado BOOLEAN NOT NULL DEFAULT FALSE;
+
 -- ============================================================
--- Índices que reflejan el impacto del filtro de vigencia sobre las
--- consultas de reporte más frecuentes (equivalente al índice
--- parcial idx_producto_cat_precio_activo de TP5, pero para las
--- tablas ampliadas acá).
+-- Índices que reflejan el impacto del filtro de vigencia.
 -- ============================================================
 
--- Acelera el historial de pedidos vigentes de un cliente (mismo
--- patrón que idx_pedido_cliente_fecha_desc de TP5, agregando el
--- filtro de vigencia).
+-- Acelera el historial de pedidos vigentes de un cliente.
 CREATE INDEX idx_pedido_vigente_cliente_fecha
 ON Pedido (id_cliente, fecha_hora DESC)
 WHERE eliminado = FALSE;
 
--- Acelera el cálculo de totales/reportes sobre líneas de pedido
--- vigentes (excluye ítems anulados sin tener que filtrarlos en
--- memoria en cada consulta).
-CREATE INDEX idx_detalle_pedido_vigente
-ON Detalle_Pedido (id_pedido)
-WHERE eliminado = FALSE;
+-- No se crea idx_detalle_pedido_vigente(id_pedido) WHERE eliminado =
+-- FALSE: la PK pk_detalle_pedido ya empieza por id_pedido, y el
+-- parcial ahorra poco frente a filtrar eliminado = FALSE sobre ese
+-- prefijo. Mismo criterio de sobreindexación que con forma_pago.
 
--- Al anular una línea se devuelve el stock que el trigger de TP2
--- había descontado en el INSERT. No toca cantidad ni precio_unitario,
--- así que no choca con trg_bloquear_modificacion_detalle_pedido.
+-- Redefine el trigger de stock (TP2) para marcar stock_descontado
+-- cuando efectivamente descuenta. Debe correr después de este ALTER.
+CREATE OR REPLACE FUNCTION fn_validar_stock_pedido()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_stock_disponible INT;
+BEGIN
+    SELECT stock INTO v_stock_disponible
+    FROM Producto
+    WHERE id_producto = NEW.id_producto
+    FOR UPDATE;
+
+    IF v_stock_disponible IS NULL THEN
+        RAISE EXCEPTION 'Producto % no existe', NEW.id_producto;
+    END IF;
+
+    IF v_stock_disponible < NEW.cantidad THEN
+        RAISE EXCEPTION 'Stock insuficiente para el producto ID %: Disponible %, Solicitado %',
+            NEW.id_producto, v_stock_disponible, NEW.cantidad;
+    END IF;
+
+    UPDATE Producto
+    SET stock = stock - NEW.cantidad
+    WHERE id_producto = NEW.id_producto;
+
+    NEW.stock_descontado := TRUE;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Al anular una línea solo se devuelve stock si el INSERT lo había
+-- descontado (stock_descontado = TRUE).
 CREATE OR REPLACE FUNCTION fn_devolver_stock_al_anular()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF OLD.eliminado = FALSE AND NEW.eliminado = TRUE THEN
+    IF OLD.eliminado = FALSE
+       AND NEW.eliminado = TRUE
+       AND OLD.stock_descontado = TRUE THEN
         UPDATE Producto
         SET stock = stock + OLD.cantidad
         WHERE id_producto = OLD.id_producto;
@@ -125,7 +157,7 @@ WHERE c.eliminado = FALSE
   );
 
 -- Ejemplo de reporte que ahora debe excluir líneas de detalle
--- anuladas para no sobrefacturar (usa idx_detalle_pedido_vigente):
+-- anuladas para no sobrefacturar:
 SELECT
     p.id_pedido,
     SUM(dp.cantidad * dp.precio_unitario) AS total_vigente

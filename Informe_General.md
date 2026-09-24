@@ -134,15 +134,40 @@ de `schema.sql`, que quedan subsumidos por esos compuestos.
 
 ## 5. Uso de herramientas de IA
 
-Herramientas usadas en todo el proyecto: **Kiro** (especificación de
-requerimientos antes de generar código) y **OpenCode** (agente de
+Herramientas del flujo habitual de cada TP: **Kiro** (especificación
+de requerimientos antes de generar código) y **OpenCode** (agente de
 codificación en terminal, en modo Plan antes de modo Build). El
 detalle de qué se aceptó, modificó o descartó de cada propuesta está
-documentado en el `duia.md` de cada carpeta de TP. Ningún script
-generado por IA se ejecutó sin leerse línea por línea ni sin probarse
-primero sobre una copia de trabajo, según el protocolo de seguridad
-de la cátedra. No se usó otra herramienta de IA además de Kiro y
-OpenCode.
+en el `duia.md` de cada carpeta. Ningún script generado por IA se
+ejecutó sin leerse línea por línea ni sin probarse primero sobre una
+copia de trabajo, según el protocolo de seguridad de la cátedra.
+
+Además, en la revisión de la entrega parcial se usó **Cursor**
+(agente de código en el IDE) para detectar huecos y aplicar
+correcciones sobre el SQL y la documentación ya entregados. No
+reemplazó a Kiro/OpenCode en el trabajo original de cada TP: se usó
+para revisión y remediación. Piezas que salieron de esa revisión y
+se **aceptaron**:
+
+- `FOR UPDATE` en el trigger de stock; orden fijo de ítems en
+  `sp_registrar_pedido` para evitar deadlock.
+- `HAVING` con umbral relativo al promedio entre categorías (un
+  umbral fijo de 100.000 no filtraba nada con `data.sql`).
+- `fn_total_pedido` en **PL/pgSQL** (no solo `LANGUAGE sql`), con
+  excepción si el pedido no existe.
+- Índice único parcial `uq_cliente_correo_vigente`, propagación de
+  `eliminado` a vistas/MV/consultas, `sp_anular_pedido`, y
+  `stock_descontado` para no reponer stock de la carga masiva.
+- Deduplicación de índices idénticos entre TP3/TP4/TP5 y baja de
+  índices subsumidos por compuestos.
+- Corrección del reintento ante `40001`: no dentro del mismo
+  `BEGIN`, sino transacción nueva desde el cliente.
+
+Se **descartó** (misma lógica de sobreindexación que
+`idx_pedido_forma_pago`): recrear `idx_detalle_pedido_vigente`
+(casi redundante con el prefijo de la PK) y dejar el umbral fijo
+del `HAVING`. El detalle ampliado está en los `duia.md` de TP2 y
+TP5.
 
 ## 6. Checklist de los 9 objetivos exigidos por la entrega parcial
 
@@ -181,16 +206,18 @@ BY/HAVING, funciones de ventana) —
 `SUM`, subconsultas correlacionadas y no correlacionadas,
 `DENSE_RANK() OVER`. El `HAVING` está en la consulta 10 de
 [`TP5/queries.sql`](TP5_Indices_Vistas/queries.sql) (categorías con
-facturación vigente mayor a 100.000). Las consultas de ese archivo
-filtran `eliminado = FALSE`.
+facturación vigente por encima del promedio entre categorías). Las
+consultas de ese archivo filtran `eliminado = FALSE`.
 
 **6. Vistas, funciones y procedimientos en PL/pgSQL.** Vistas en
 [`TP5_Indices_Vistas/views.sql`](TP5_Indices_Vistas/views.sql) y vista
 materializada en [`materializadas.sql`](TP5_Indices_Vistas/materializadas.sql).
-Función invocable (no es un trigger): `fn_total_pedido(id) RETURNS numeric`,
-con `SELECT fn_total_pedido(1);`. Procedimientos con `CALL` en
+Función invocable en PL/pgSQL: `fn_total_pedido(id) RETURNS numeric`
+(`SELECT fn_total_pedido(1);`; excepción si el pedido no existe).
+Procedimientos con `CALL` en
 [`TP5_Indices_Vistas/procedimientos.sql`](TP5_Indices_Vistas/procedimientos.sql):
-`sp_registrar_pedido`, `sp_anular_pedido` y `sp_dar_baja_cliente`.
+`sp_registrar_pedido` (ítems ordenados por `id_producto` para evitar
+deadlock con `FOR UPDATE`), `sp_anular_pedido` y `sp_dar_baja_cliente`.
 Los triggers de stock e inmutabilidad siguen en
 [`TP2/restricciones.sql`](TP2_Concurrencia_IA/restricciones.sql).
 
@@ -203,8 +230,10 @@ devolución de stock al anular una línea está en `soft_delete.sql`.
 **8. Transacciones** (atomicidad, COMMIT/ROLLBACK, niveles de
 aislamiento, control de concurrencia) —
 [`TP2_Concurrencia_IA/informe_concurrencia.md`](TP2_Concurrencia_IA/informe_concurrencia.md):
-guion de dos sesiones, `ROLLBACK` que no deja la fila, y reintento
-ante `SQLSTATE 40001` en `SERIALIZABLE`.
+atomicidad con `sp_registrar_pedido` (ítem sin stock → cero pedidos,
+stock intacto), dos sesiones con `FOR UPDATE`, y reintento ante
+`SQLSTATE 40001` **desde el cliente** con un `BEGIN` nuevo (no
+dentro del mismo bloque).
 
 **9. Borrado lógico (soft delete).** `Producto.activo = TRUE` significa
 que se puede vender; `eliminado = TRUE` en Cliente, Pedido y
@@ -217,7 +246,9 @@ pedidos y detalles vigentes, y trigger que devuelve stock al anular
 una línea. Las vistas, la vista materializada y
 `TP5_Indices_Vistas/queries.sql` excluyen filas con
 `eliminado = TRUE`. `sp_registrar_pedido` rechaza un cliente dado
-de baja; `sp_anular_pedido` anula el pedido y repone el stock.
+de baja; `sp_anular_pedido` anula el pedido y repone stock solo si
+la línea tenía `stock_descontado = TRUE` (los detalles de la carga
+masiva no descontaron stock; anularlos no lo infla).
 
 Ver el paso 9 de [`TP5_Indices_Vistas/README.md`](TP5_Indices_Vistas/README.md)
 para aplicar `soft_delete.sql` y `procedimientos.sql`, y verificarlos

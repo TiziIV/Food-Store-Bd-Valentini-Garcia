@@ -27,6 +27,13 @@ WHERE p.activo = TRUE;
 --    el teléfono es el dato de contacto sensible a proteger), por
 --    lo que puede otorgarse SELECT sobre esta vista sin dar
 --    acceso a la tabla base.
+--    Decisión de diseño: también exige c.eliminado = FALSE. Un
+--    pedido de un cliente dado de baja no aparece acá (vista
+--    operativa / contacto). La vista materializada
+--    mv_facturacion_categoria_mes NO filtra por Cliente.eliminado:
+--    cuenta ventas vigentes (pedido y detalle no anulados) aunque
+--    el cliente después se haya dado de baja. Los totales de la MV
+--    y esta vista no tienen por qué cerrar uno a uno.
 --    Ejemplo de uso:
 --    GRANT SELECT ON vista_pedidos_cliente TO rol_reportes;
 CREATE OR REPLACE VIEW vista_pedidos_cliente AS

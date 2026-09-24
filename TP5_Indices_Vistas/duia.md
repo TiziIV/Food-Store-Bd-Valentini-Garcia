@@ -62,3 +62,13 @@ el enunciado de la cátedra, en lugar de la entidad `Cliente` definida
 en el modelo ER y el `schema.sql` reales del proyecto desde la
 Semana 1. Se corrigió antes de aceptar la vista, ya que `Usuario` no
 existe en el esquema y hubiera roto la ejecución de `views.sql`.
+
+## Revisión posterior de la entrega (Cursor)
+
+| Campo | Registro documentado |
+|---|---|
+| Herramienta | Cursor (agente en el IDE), sobre índices/vistas/procedimientos ya generados con Kiro/OpenCode |
+| Para qué | Revisión de la entrega parcial: huecos de objetivos 5, 6 y 9, y sobreindexación |
+| Qué detectó / propuso | Falta de función invocable en PL/pgSQL; `HAVING` ausente o con umbral que no filtraba; soft delete sin llegar a vistas/MV/UNIQUE; deadlock posible en `sp_registrar_pedido` con `FOR UPDATE`; índices duplicados entre TP3/TP4/TP5; reponer stock al anular líneas de la carga masiva |
+| Qué se aceptó | `fn_total_pedido` en `LANGUAGE plpgsql` (excepción si no existe); `HAVING` vs promedio entre categorías; propagación de `eliminado`; `uq_cliente_correo_vigente`; `ORDER BY id_producto` en el `FOR` del procedimiento; `stock_descontado`; deduplicación de índices; baja de `idx_detalle_pedido_vigente` (redundante con la PK) |
+| Qué se descartó | Umbral fijo `> 100000` en el `HAVING`; recrear el parcial de detalle por `id_pedido`; declarar que “solo se usó Kiro y OpenCode” sin mencionar esta revisión |

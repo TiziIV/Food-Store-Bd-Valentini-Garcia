@@ -10,7 +10,10 @@
 
 -- 1. Acelera consultas de catálogo por categoría y precio sobre
 --    productos vigentes (Consulta 1). Índice parcial: excluye del
---    árbol los productos dados de baja (activo = FALSE).
+--    árbol los productos con activo = FALSE. Con data.sql ~96% de
+--    los productos están activos, así que el ahorro de tamaño es
+--    acotado; se mantiene porque la consulta siempre filtra
+--    activo = TRUE y el plan medido deja de hacer Seq Scan.
 CREATE INDEX idx_producto_cat_precio_activo
 ON Producto (id_categoria, precio_actual)
 WHERE activo = TRUE;

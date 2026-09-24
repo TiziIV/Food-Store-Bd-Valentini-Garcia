@@ -112,21 +112,6 @@ WHERE p.activo = TRUE
   AND pe.eliminado = FALSE
 GROUP BY c.id_categoria, c.nombre_categoria, p.id_producto, p.nombre_producto;
 
--- 10. HAVING: categorías cuya facturación vigente supera un umbral.
---     HAVING filtra el agregado; WHERE no puede hacerlo.
-SELECT
-    c.nombre_categoria,
-    SUM(dp.cantidad * dp.precio_unitario) AS total_recaudado
-FROM Categoria c
-JOIN Producto p ON c.id_categoria = p.id_categoria
-JOIN Detalle_Pedido dp ON p.id_producto = dp.id_producto
-JOIN Pedido pe ON pe.id_pedido = dp.id_pedido
-WHERE dp.eliminado = FALSE
-  AND pe.eliminado = FALSE
-GROUP BY c.id_categoria, c.nombre_categoria
-HAVING SUM(dp.cantidad * dp.precio_unitario) > 100000
-ORDER BY total_recaudado DESC;
-
 -- 9. Fecha y monto del pedido vigente más reciente de cada cliente.
 SELECT
     c.id_cliente,
@@ -146,3 +131,32 @@ WHERE c.eliminado = FALSE
     WHERE p2.id_cliente = c.id_cliente
       AND p2.eliminado = FALSE
 );
+
+-- 10. HAVING: categorías cuya facturación vigente supera el promedio
+--     entre categorías. Un umbral fijo (p. ej. 100.000) con data.sql
+--     no filtra nada: cada categoría factura órdenes de magnitud
+--     mayores. Comparar contra el promedio sí deja filas afuera.
+SELECT
+    c.nombre_categoria,
+    SUM(dp.cantidad * dp.precio_unitario) AS total_recaudado
+FROM Categoria c
+JOIN Producto p ON c.id_categoria = p.id_categoria
+JOIN Detalle_Pedido dp ON p.id_producto = dp.id_producto
+JOIN Pedido pe ON pe.id_pedido = dp.id_pedido
+WHERE dp.eliminado = FALSE
+  AND pe.eliminado = FALSE
+GROUP BY c.id_categoria, c.nombre_categoria
+HAVING SUM(dp.cantidad * dp.precio_unitario) > (
+    SELECT AVG(totales.total_recaudado)
+    FROM (
+        SELECT SUM(dp2.cantidad * dp2.precio_unitario) AS total_recaudado
+        FROM Categoria c2
+        JOIN Producto p2 ON c2.id_categoria = p2.id_categoria
+        JOIN Detalle_Pedido dp2 ON p2.id_producto = dp2.id_producto
+        JOIN Pedido pe2 ON pe2.id_pedido = dp2.id_pedido
+        WHERE dp2.eliminado = FALSE
+          AND pe2.eliminado = FALSE
+        GROUP BY c2.id_categoria
+    ) AS totales
+)
+ORDER BY total_recaudado DESC;

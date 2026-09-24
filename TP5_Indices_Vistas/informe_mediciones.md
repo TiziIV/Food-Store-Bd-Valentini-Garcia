@@ -57,6 +57,12 @@ Tiempo total de ejecución: 2.500 ms
 
 **Mejora:** 82,7% (de 14,5 ms a 2,5 ms; factor 5,8x).
 
+**Nota sobre el parcial:** con la carga masiva, alrededor del 96% de
+los productos tienen `activo = TRUE`. El índice parcial ahorra poco
+tamaño frente a uno completo sobre `(id_categoria, precio_actual)`;
+se conserva porque la consulta de catálogo siempre lleva
+`activo = TRUE` y el plan medido deja el Seq Scan.
+
 ---
 
 ### Consulta 2 — Historial cronológico de pedidos por cliente
