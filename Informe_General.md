@@ -51,9 +51,11 @@ carpeta; este documento es el resumen transversal.
   indexado final (índice parcial, compuesto con orden `DESC` y
   covering index), tres vistas de solo lectura para los reportes del
   sistema (productos vigentes, pedidos con datos de cliente, detalle
-  de pedido con nombre de producto y subtotal), y una vista
+  de pedido con nombre de producto y subtotal), una vista
   materializada de facturación por categoría y mes con índice único
-  para permitir `REFRESH CONCURRENTLY`.
+  para permitir `REFRESH CONCURRENTLY`, el borrado lógico extendido
+  a `Cliente`, `Pedido` y `Detalle_Pedido` (`soft_delete.sql`), y
+  dos procedimientos invocados con `CALL` (`procedimientos.sql`).
 
 ## 2. Cómo se probó cada elemento
 
@@ -164,7 +166,7 @@ materializada en [`materializadas.sql`](TP5_Indices_Vistas/materializadas.sql).
 Funciones-trigger en PL/pgSQL en
 [`TP2/restricciones.sql`](TP2_Concurrencia_IA/restricciones.sql).
 Procedimientos invocados con `CALL` en
-[`Ampliacion_Parcial_Final/procedimientos.sql`](Ampliacion_Parcial_Final/procedimientos.sql):
+[`TP5_Indices_Vistas/procedimientos.sql`](TP5_Indices_Vistas/procedimientos.sql):
 `sp_registrar_pedido` (carga atómica de un pedido con JSONB,
 reutilizando el trigger de validación de stock) y
 `sp_dar_baja_cliente` (aplica el borrado lógico del punto 9).
@@ -183,12 +185,12 @@ tres escenarios con dos sesiones, verificados en el motor.
 índice parcial `WHERE activo = TRUE` (`TP5_Indices_Vistas/indices.sql`)
 reflejado en las vistas/consultas de reporte. Extendido a `Cliente`,
 `Pedido` y `Detalle_Pedido` en
-[`Ampliacion_Parcial_Final/soft_delete.sql`](Ampliacion_Parcial_Final/soft_delete.sql),
+[`TP5_Indices_Vistas/soft_delete.sql`](TP5_Indices_Vistas/soft_delete.sql),
 con sus propios índices parciales (`idx_pedido_vigente_cliente_fecha`,
 `idx_detalle_pedido_vigente`) y el ejemplo concreto de cómo cambia la
 consulta de "clientes sin pedidos" de TP3 al aplicar el filtro de
 vigencia en ambas tablas.
 
-Ver [`Ampliacion_Parcial_Final/README.md`](Ampliacion_Parcial_Final/README.md)
-para el orden de aplicación y los pasos de verificación de estos dos
-puntos con `CALL` y `EXPLAIN ANALYZE`.
+Ver el paso 9 de [`TP5_Indices_Vistas/README.md`](TP5_Indices_Vistas/README.md)
+para aplicar `soft_delete.sql` y `procedimientos.sql`, y verificarlos
+con `CALL` y `EXPLAIN ANALYZE`.

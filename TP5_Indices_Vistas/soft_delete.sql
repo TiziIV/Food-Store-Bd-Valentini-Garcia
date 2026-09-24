@@ -1,7 +1,7 @@
 -- ============================================================
--- soft_delete.sql — Ampliación para el punto 9 del parcial final
--- "Borrado lógico (soft delete) y su impacto correcto sobre
--- consultas e índices."
+-- soft_delete.sql — TP5
+-- Borrado lógico (soft delete) y su impacto sobre consultas
+-- e índices.
 -- ============================================================
 -- Hasta esta entrega, el borrado lógico solo existía en
 -- Producto.activo (TP1). Se extiende el mismo criterio a Cliente,
@@ -10,10 +10,10 @@
 -- un producto inactivo puede volver a activarse; un registro
 -- eliminado lógicamente representa una baja).
 --
--- No se modifican TP1_FoodStore/schema.sql ni los archivos ya
--- entregados de TP2 a TP5: esta es una ampliación posterior sobre
--- el mismo esquema, pensada para aplicarse después de
--- TP1_FoodStore/schema.sql y de la carga de TP5_Indices_Vistas/data.sql.
+-- No se modifica ../TP1_FoodStore/schema.sql: esta es una ampliación
+-- posterior sobre el mismo esquema, pensada para aplicarse después
+-- de TP1_FoodStore/schema.sql y de la carga de data.sql de esta
+-- misma carpeta (ver README.md para el orden completo).
 -- ============================================================
 
 -- ---------- Cliente ----------

@@ -1,9 +1,7 @@
 -- ============================================================
--- procedimientos.sql — Ampliación para el punto 6 del parcial final
--- "Vistas, funciones y procedimientos almacenados desarrollados en
--- PL/pgSQL", específicamente un procedimiento invocado con CALL
--- (requisito propio de PostgreSQL 16+ que hasta esta entrega no
--- estaba cubierto: solo había funciones-trigger).
+-- procedimientos.sql — TP5
+-- Procedimientos almacenados en PL/pgSQL, invocados con CALL
+-- (PostgreSQL 16+).
 -- ============================================================
 -- Requiere haber aplicado antes soft_delete.sql (usa la columna
 -- Cliente.eliminado en sp_dar_baja_cliente).

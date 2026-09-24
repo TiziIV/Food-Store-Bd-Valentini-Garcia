@@ -17,6 +17,9 @@ TP5_Indices_Vistas/
 ├── indices.sql              (nuevo — Parte A)
 ├── views.sql                (nuevo — Parte B)
 ├── materializadas.sql       (nuevo — Parte C)
+├── soft_delete.sql          (borrado lógico en Cliente, Pedido y
+│                             Detalle_Pedido)
+├── procedimientos.sql       (procedimientos PL/pgSQL invocados con CALL)
 ├── specs/                   (especificaciones entregadas a Kiro)
 ├── duia.md                  (bitácora de uso de IA)
 ├── informe_mediciones.md    (EXPLAIN ANALYZE antes/después)
@@ -106,6 +109,37 @@ EXPLAIN ANALYZE SELECT * FROM mv_facturacion_categoria_mes;
 REFRESH MATERIALIZED VIEW CONCURRENTLY mv_facturacion_categoria_mes;
 ```
 
+9. Borrado lógico y procedimientos con `CALL`:
+
+```bash
+psql -d food_store -f TP5_Indices_Vistas/soft_delete.sql
+psql -d food_store -f TP5_Indices_Vistas/procedimientos.sql
+```
+
+Verificación, dentro de una transacción de prueba según
+`protocolo_seguridad.md`:
+
+```sql
+BEGIN;
+
+CALL sp_registrar_pedido(1500, 'EFECTIVO',
+    '[{"id_producto": 1, "cantidad": 2}]'::jsonb);
+CALL sp_dar_baja_cliente(1500);
+SELECT id_cliente, eliminado FROM Cliente WHERE id_cliente = 1500;
+
+EXPLAIN ANALYZE
+SELECT id_pedido, fecha_hora FROM Pedido
+WHERE id_cliente = 1500 AND eliminado = FALSE
+ORDER BY fecha_hora DESC;
+
+ROLLBACK;
+```
+
+Resultado esperado: `sp_registrar_pedido` devuelve el `id_pedido`
+generado y descuenta stock vía el trigger de TP2; `sp_dar_baja_cliente`
+deja `eliminado = TRUE` en el cliente 1500; el plan usa
+`idx_pedido_vigente_cliente_fecha`.
+
 ## Flujo de trabajo con IA
 
 Cada índice, vista y la vista materializada siguieron el mismo
@@ -117,12 +151,17 @@ modificó o descartó de cada propuesta de la IA está en `duia.md`.
 
 ## Notas
 
-- No se modificó el modelo de datos heredado (tablas, tipos ni
-  restricciones): todo lo agregado en esta entrega son índices y
-  vistas.
+- El plan de indexado, las vistas y la vista materializada (Partes
+  A, B y C) no modifican el modelo de datos heredado (tablas, tipos
+  ni restricciones): todo lo agregado ahí son índices y vistas.
 - `vista_pedidos_cliente` usa la entidad `Cliente` definida desde
   TP1 (no `Usuario`), ocultando el `telefono` como dato de
   contacto sensible, ya que el proyecto no modela autenticación.
-- Los archivos de esta entrega se reutilizan en la Semana 6
-  (procedimientos, funciones y disparadores), por lo que no deben
-  eliminarse ni reescribirse.
+- `soft_delete.sql` sí amplía el modelo (agrega `eliminado` a
+  `Cliente`, `Pedido` y `Detalle_Pedido`), pero como `ALTER TABLE`
+  posterior, sin reescribir `TP1_FoodStore/schema.sql` — ese archivo
+  queda intacto como el DDL originalmente entregado y corregido en
+  el TP1.
+- `procedimientos.sql` reutiliza el trigger `fn_validar_stock_pedido`
+  de `TP2_Concurrencia_IA/restricciones.sql`, así que debe aplicarse
+  después de ese script.
