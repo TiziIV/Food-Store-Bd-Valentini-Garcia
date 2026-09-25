@@ -3,8 +3,8 @@
 -- Borrado lógico (soft delete) y su impacto sobre consultas
 -- e índices.
 -- ============================================================
--- Hasta esta entrega, el borrado lógico solo existía en
--- Producto.activo (TP1). Se extiende el mismo criterio a Cliente,
+-- En el esquema base de TP1, el borrado lógico solo existía en
+-- Producto.activo. Se extiende el mismo criterio a Cliente,
 -- Pedido y Detalle_Pedido, bajo el nombre "eliminado" (para no
 -- confundirlo con el "activo" de catálogo, que tiene otra semántica:
 -- un producto inactivo puede volver a activarse; un registro

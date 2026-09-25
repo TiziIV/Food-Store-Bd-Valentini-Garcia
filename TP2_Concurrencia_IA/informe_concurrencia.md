@@ -89,14 +89,13 @@ La Transacción 1 bloquea el producto A y espera el B; la Transacción 2 bloquea
 
 ---
 
-## 6. Guion de verificación en `psql`
+## 6. Verificación en `psql`
 
-Los comandos de esta sección se corren sobre `food_store_dev` con
-`restricciones.sql`, `soft_delete.sql` y `procedimientos.sql` ya
-aplicados. Los bloques ` ```text ` muestran el **formato** del
-mensaje del motor o la **salida esperada**; no son capturas pegadas
-de una sesión. La consigna permite incluir capturas, pero esta
-entrega documenta el guion reproducible.
+Comandos para reproducir los escenarios anteriores sobre
+`food_store_dev`, con `restricciones.sql`, `soft_delete.sql` y
+`procedimientos.sql` ya aplicados. Los bloques de texto muestran el
+formato típico de salida del motor o el resultado esperado al
+ejecutar cada paso.
 
 ### 6.1 Atomicidad con `sp_registrar_pedido`
 

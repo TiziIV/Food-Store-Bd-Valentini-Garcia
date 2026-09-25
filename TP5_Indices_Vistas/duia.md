@@ -55,20 +55,21 @@ commit separado y descriptivo en Git.
 
 ## Nota sobre corrección de nombres (Cliente vs. Usuario)
 
-Al revisar el trabajo completo del proyecto integrador (desde TP1),
-se detectó que la primera propuesta de OpenCode para `vista_pedidos_*`
+Durante la lectura crítica de las propuestas de OpenCode (desde TP1),
+la primera versión de `vista_pedidos_*`
 copió el nombre genérico `Usuario` usado como ejemplo ilustrativo en
 el enunciado de la cátedra, en lugar de la entidad `Cliente` definida
 en el modelo ER y el `schema.sql` reales del proyecto desde la
 Semana 1. Se corrigió antes de aceptar la vista, ya que `Usuario` no
 existe en el esquema y hubiera roto la ejecución de `views.sql`.
 
-## Revisión posterior de la entrega (Cursor)
+## Parte D — Borrado lógico, procedimientos y consultas consolidadas
 
 | Campo | Registro documentado |
 |---|---|
-| Herramienta | Cursor (agente en el IDE), sobre índices/vistas/procedimientos ya generados con Kiro/OpenCode |
-| Para qué | Revisión de la entrega parcial: huecos de objetivos 5, 6 y 9, y sobreindexación |
-| Qué detectó / propuso | Falta de función invocable en PL/pgSQL; `HAVING` ausente o con umbral que no filtraba; soft delete sin llegar a vistas/MV/UNIQUE; deadlock posible en `sp_registrar_pedido` con `FOR UPDATE`; índices duplicados entre TP3/TP4/TP5; reponer stock al anular líneas de la carga masiva |
-| Qué se aceptó | `fn_total_pedido` en `LANGUAGE plpgsql` (excepción si no existe); `HAVING` vs promedio entre categorías; propagación de `eliminado`; `uq_cliente_correo_vigente`; `ORDER BY id_producto` en el `FOR` del procedimiento; `stock_descontado`; deduplicación de índices; baja de `idx_detalle_pedido_vigente` (redundante con la PK) |
-| Qué se descartó | Umbral fijo `> 100000` en el `HAVING`; recrear el parcial de detalle por `id_pedido`; declarar que “solo se usó Kiro y OpenCode” sin mencionar esta revisión |
+| Herramienta | Kiro (especificación de soft delete y procedimientos) y OpenCode (SQL de `soft_delete.sql`, `procedimientos.sql` y consultas TP5) |
+| Spec o prompt entregado | "Extender borrado lógico a Cliente/Pedido/Detalle_Pedido con impacto en índices y consultas; función fn_total_pedido invocable en PL/pgSQL; procedimientos sp_registrar_pedido (JSONB), sp_anular_pedido y sp_dar_baja_cliente; consulta con HAVING que filtre categorías por encima del promedio." |
+| Qué propuso la IA | Primera versión con `fn_total_pedido` en `LANGUAGE sql`; `HAVING` con umbral fijo 100.000; devolución de stock al anular sin distinguir líneas de la carga masiva; índice parcial redundante sobre `Detalle_Pedido(id_pedido)`. |
+| Qué se aceptó | `fn_total_pedido` en PL/pgSQL con excepción si el pedido no existe; `HAVING` vs promedio entre categorías; propagación de `eliminado` a vistas, MV y `queries.sql`; `uq_cliente_correo_vigente`; `ORDER BY id_producto` en `sp_registrar_pedido`; columna `stock_descontado`; deduplicación de índices idénticos entre TP3/TP4/TP5. |
+| Qué se descartó | Umbral fijo `> 100000` en el `HAVING` (con `data.sql` no filtraba filas); `idx_detalle_pedido_vigente` (prefijo ya cubierto por la PK). |
+| Verificación realizada | Orden de carga del README raíz; `CALL` y `SELECT fn_total_pedido(...)` dentro de `BEGIN ... ROLLBACK` según `protocolo_seguridad.md`. |

@@ -41,12 +41,13 @@ diff línea por línea antes de aplicarlo, probar sobre una copia de la
 base siguiendo `protocolo_seguridad.md`, y versionar cada pieza en un
 commit separado y descriptivo.
 
-## Revisión posterior de la entrega (Cursor)
+## Parte 4 — Trigger de stock, atomicidad y reintento 40001
 
 | Campo | Registro documentado |
 |---|---|
-| Herramienta | Cursor (agente en el IDE), sobre el SQL e informe ya armados con Kiro/OpenCode |
-| Para qué | Revisión de la entrega parcial: detectar huecos de concurrencia y remediación |
-| Qué detectó / propuso | Que el trigger de stock leía sin `FOR UPDATE`; que un `DO` con `EXCEPTION WHEN serialization_failure` reintenta dentro del mismo snapshot (no sirve ante `40001`); que la demo de atomicidad debía usar `sp_registrar_pedido` y no un `INSERT` suelto |
-| Qué se aceptó | `FOR UPDATE` en `fn_validar_stock_pedido`; sección 6 del informe con atomicidad vía `CALL`, reintento **desde el cliente** con `BEGIN` nuevo, y mensajes `40001` / `40P01`; alineación del nombre de base a `food_store_dev` |
-| Qué se descartó | El bloque `DO $$ ... EXCEPTION WHEN serialization_failure` como “evidencia” de reintento: engaña porque falla las N veces sin cambiar de transacción |
+| Herramienta | OpenCode (ajuste del trigger y redacción del informe de concurrencia) |
+| Spec o prompt entregado | "El trigger de stock debe bloquear la fila de Producto con FOR UPDATE antes de descontar; documentar atomicidad de sp_registrar_pedido y el reintento ante SQLSTATE 40001 desde el cliente, no dentro del mismo BEGIN." |
+| Qué propuso la IA | Primera versión del trigger sin `FOR UPDATE`; un bloque `DO $$ ... EXCEPTION WHEN serialization_failure` para reintentar dentro de la misma transacción. |
+| Qué se aceptó | `SELECT ... FOR UPDATE` en `fn_validar_stock_pedido`; verificación de atomicidad con `CALL sp_registrar_pedido` (ítem sin stock → cero pedidos, stock intacto); reintento ante `40001` con un `BEGIN` nuevo desde el cliente; mensajes documentados de `40P01` (deadlock). |
+| Qué se descartó | El bloque `DO` con `EXCEPTION WHEN serialization_failure`: el snapshot no cambia y el UPDATE vuelve a fallar; un `INSERT` suelto + `ROLLBACK` como única demo de atomicidad (se prefirió el procedimiento de negocio). |
+| Verificación realizada | Guion de dos sesiones en `informe_concurrencia.md` sobre `food_store_dev`, según `protocolo_seguridad.md`. |

@@ -135,40 +135,28 @@ En la carga integrada se crea cada uno una sola vez en
 
 ## 5. Uso de herramientas de IA
 
-Herramientas del flujo habitual de cada TP: **Kiro** (especificación
-de requerimientos antes de generar código) y **OpenCode** (agente de
+Herramientas usadas en todo el proyecto: **Kiro** (especificación de
+requerimientos antes de generar código) y **OpenCode** (agente de
 codificación en terminal, en modo Plan antes de modo Build). El
 detalle de qué se aceptó, modificó o descartó de cada propuesta está
-en el `duia.md` de cada carpeta. Ningún script generado por IA se
-ejecutó sin leerse línea por línea ni sin probarse primero sobre una
-copia de trabajo, según el protocolo de seguridad de la cátedra.
+documentado en el `duia.md` de cada carpeta de TP. Ningún script
+generado por IA se ejecutó sin leerse línea por línea ni sin probarse
+primero sobre una copia de trabajo, según el protocolo de seguridad
+de la cátedra.
 
-Además, en la revisión de la entrega parcial se usó **Cursor**
-(agente de código en el IDE) para detectar huecos y aplicar
-correcciones sobre el SQL y la documentación ya entregados. No
-reemplazó a Kiro/OpenCode en el trabajo original de cada TP: se usó
-para revisión y remediación. Piezas que salieron de esa revisión y
-se **aceptaron**:
+Decisiones relevantes aceptadas o descartadas en el trabajo con IA
+(incluidas en los DUIA de TP2 y TP5):
 
-- `FOR UPDATE` en el trigger de stock; orden fijo de ítems en
-  `sp_registrar_pedido` para evitar deadlock.
-- `HAVING` con umbral relativo al promedio entre categorías (un
-  umbral fijo de 100.000 no filtraba nada con `data.sql`).
-- `fn_total_pedido` en **PL/pgSQL** (no solo `LANGUAGE sql`), con
-  excepción si el pedido no existe.
-- Índice único parcial `uq_cliente_correo_vigente`, propagación de
-  `eliminado` a vistas/MV/consultas, `sp_anular_pedido`, y
-  `stock_descontado` para no reponer stock de la carga masiva.
-- Deduplicación de índices idénticos entre TP3/TP4/TP5 y baja de
-  índices subsumidos por compuestos.
-- Corrección del reintento ante `40001`: no dentro del mismo
-  `BEGIN`, sino transacción nueva desde el cliente.
-
-Se **descartó** (misma lógica de sobreindexación que
-`idx_pedido_forma_pago`): recrear `idx_detalle_pedido_vigente`
-(casi redundante con el prefijo de la PK) y dejar el umbral fijo
-del `HAVING`. El detalle ampliado está en los `duia.md` de TP2 y
-TP5.
+- **Aceptado:** `FOR UPDATE` en el trigger de stock; orden fijo de
+  ítems en `sp_registrar_pedido` para evitar deadlock; `HAVING` con
+  umbral relativo al promedio entre categorías; `fn_total_pedido` en
+  PL/pgSQL; borrado lógico con índice único parcial de correo,
+  propagación a vistas/MV/consultas, `sp_anular_pedido` y
+  `stock_descontado`; deduplicación de índices entre TP3/TP4/TP5.
+- **Descartado:** reintento ante `40001` dentro del mismo `BEGIN`
+  (debe rehacerse la transacción desde el cliente); umbral fijo
+  `> 100000` en el `HAVING`; `idx_detalle_pedido_vigente` (redundante
+  con la PK); índices de baja selectividad como `idx_pedido_forma_pago`.
 
 ## 6. Checklist de los 9 objetivos exigidos por la entrega parcial
 
