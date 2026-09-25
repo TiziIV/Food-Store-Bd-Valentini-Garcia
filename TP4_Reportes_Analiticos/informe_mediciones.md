@@ -12,8 +12,9 @@ misma base masiva del TP3 (ver
 - **Antes:** `Hash Join` entre Producto/Categoria + `Hash Join` masivo
   con `Seq Scan` completo sobre 400.000 filas de Detalle_Pedido —
   cost `11850.00..12450.00` — ~145.800 ms.
-- **Cambio aplicado:** `idx_producto_activo_categoria` +
-  `idx_detalle_pedido_facturacion` (ver [`indices.sql`](indices.sql)).
+- **Cambio aplicado:** `idx_producto_activo_categoria` (TP4) +
+  `idx_detalle_pedido_prod_covering` (creado una sola vez en
+  `TP5_Indices_Vistas/indices.sql`; ver [`indices.sql`](indices.sql)).
 - **Después:** `Hash Join` asistido por `Index Only Scan` y mapa de
   bits — cost `5420.00..5890.00` — ~38.400 ms.
 - **Mejora:** 73,6% más rápido (~3,8x).

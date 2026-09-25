@@ -1,6 +1,8 @@
 -- ============================================================
 -- queries.sql — TP3 (Unidad 2, Semana 3), Parte 4
 -- Consultas resumen y subconsultas bajo especificación precisa.
+-- Snapshot de la Semana 3: no filtra eliminado (soft delete es
+-- posterior, en TP5). Versión consolidada: TP5_Indices_Vistas/queries.sql
 -- ============================================================
 
 -- ------------------------------------------------------------

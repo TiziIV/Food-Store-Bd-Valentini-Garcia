@@ -55,4 +55,4 @@ pg_dump -U postgres -d food_store_dev --format=plain --file="./backups/food_stor
 ## Verificación de Cumplimiento
 * [x] Base de pruebas creada y verificada con \l en psql.
 * [x] Todo script DDL/DML testeado con BEGIN ... ROLLBACK antes de persistir.
-* [x] Directorio ./backups configurado con volcado previo a los cambios de la Unidad 1.
+* [x] Volcado previo con `pg_dump` en `./backups/` (crear la carpeta al ejecutar el comando de la sección 3).

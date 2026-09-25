@@ -4,6 +4,8 @@
 -- de la Parte 3 (ranking con función de ventana + subconsulta
 -- correlacionada), con sus versiones alternativas y verificación
 -- de equivalencia.
+-- Snapshot de la Semana 4: no filtra eliminado (soft delete es
+-- posterior, en TP5). Versión consolidada: TP5_Indices_Vistas/queries.sql
 -- ============================================================
 
 -- ------------------------------------------------------------

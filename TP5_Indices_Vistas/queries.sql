@@ -1,8 +1,8 @@
 -- ============================================================
 -- queries.sql — Consultas de negocio y analíticas de Food Store
--- Correr después de soft_delete.sql: filtran eliminado = FALSE.
--- Las mediciones "antes/después" del informe usan las consultas
--- de informe_mediciones.md, que no dependen de esa columna.
+-- Correr después de soft_delete.sql. Consultas 2–10 filtran
+-- eliminado = FALSE donde aplica; la 1 es catálogo (activo = TRUE).
+-- Las mediciones "antes/después" del informe usan informe_mediciones.md.
 -- ============================================================
 
 -- 1. Catálogo: productos de una categoría por encima de un precio.
@@ -10,6 +10,7 @@
 SELECT id_producto, nombre_producto, precio_actual
 FROM Producto
 WHERE id_categoria = 3
+  AND activo = TRUE
   AND precio_actual > 2500;
 
 -- 2. Historial cronológico de pedidos de un cliente (más recientes primero).

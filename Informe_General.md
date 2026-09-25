@@ -127,10 +127,11 @@ solo agrega costo de escritura sin beneficio de lectura (ver
 El mismo criterio se aplicó a índices repetidos. `idx_pedido_cliente_fecha_hora`
 (TP3) es el mismo árbol que `idx_pedido_cliente_fecha_desc` (TP5).
 `idx_detalle_pedido_facturacion` (TP4) es el mismo que
-`idx_detalle_pedido_prod_covering` (TP5). En la carga integrada se
-crea cada uno una sola vez, en `TP5_Indices_Vistas/indices.sql`, y
-ahí se eliminan `idx_pedido_id_cliente` e `idx_detalle_pedido_id_producto`
-de `schema.sql`, que quedan subsumidos por esos compuestos.
+`idx_detalle_pedido_prod_covering` (TP5). `idx_producto_categoria_precio`
+(TP3) queda subsumido por `idx_producto_cat_precio_activo` (TP5).
+En la carga integrada se crea cada uno una sola vez en
+`TP5_Indices_Vistas/indices.sql`, y ahí se eliminan los simples de
+`schema.sql` y el índice de producto de TP3.
 
 ## 5. Uso de herramientas de IA
 
@@ -206,8 +207,10 @@ BY/HAVING, funciones de ventana) —
 `SUM`, subconsultas correlacionadas y no correlacionadas,
 `DENSE_RANK() OVER`. El `HAVING` está en la consulta 10 de
 [`TP5/queries.sql`](TP5_Indices_Vistas/queries.sql) (categorías con
-facturación vigente por encima del promedio entre categorías). Las
-consultas de ese archivo filtran `eliminado = FALSE`.
+facturación vigente por encima del promedio entre categorías). En
+`TP5/queries.sql`, las consultas 2–10 filtran `eliminado = FALSE`
+donde aplica; la consulta 1 filtra `activo = TRUE`. TP3/TP4
+conservan sus `queries.sql` de cada semana (sin `eliminado`).
 
 **6. Vistas, funciones y procedimientos en PL/pgSQL.** Vistas en
 [`TP5_Indices_Vistas/views.sql`](TP5_Indices_Vistas/views.sql) y vista
@@ -241,8 +244,10 @@ Detalle_Pedido significa dado de baja. Son flags de polaridad
 opuesta y responden preguntas distintas. La baja está en
 [`TP5_Indices_Vistas/soft_delete.sql`](TP5_Indices_Vistas/soft_delete.sql):
 índice único parcial `uq_cliente_correo_vigente WHERE eliminado = FALSE`
-(reemplaza el `UNIQUE` de `schema.sql`), índices parciales de
-pedidos y detalles vigentes, y trigger que devuelve stock al anular
+(reemplaza el `UNIQUE` de `schema.sql`), índice parcial de pedidos
+vigentes (`idx_pedido_vigente_cliente_fecha`; no se creó uno
+equivalente sobre detalle porque la PK ya empieza por `id_pedido`),
+y trigger que devuelve stock al anular
 una línea. Las vistas, la vista materializada y
 `TP5_Indices_Vistas/queries.sql` excluyen filas con
 `eliminado = TRUE`. `sp_registrar_pedido` rechaza un cliente dado

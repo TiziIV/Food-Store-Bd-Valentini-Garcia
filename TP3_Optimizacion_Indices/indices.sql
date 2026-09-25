@@ -13,6 +13,8 @@
 --    Antes: Seq Scan, 13.100 ms. Después: Bitmap Heap Scan, 3.600 ms.
 CREATE INDEX idx_producto_categoria_precio
 ON Producto (id_categoria, precio_actual);
+-- En la carga integrada se elimina en TP5_Indices_Vistas/indices.sql
+-- al crear idx_producto_cat_precio_activo (mismo criterio de dedup).
 
 -- 2. Consulta 2: historial de pedidos de un cliente ordenado por
 --    fecha descendente. El índice que quedó en el proyecto es

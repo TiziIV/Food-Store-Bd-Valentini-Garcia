@@ -89,12 +89,14 @@ La Transacción 1 bloquea el producto A y espera el B; la Transacción 2 bloquea
 
 ---
 
-## 6. Evidencia en `psql`
+## 6. Guion de verificación en `psql`
 
 Los comandos de esta sección se corren sobre `food_store_dev` con
 `restricciones.sql`, `soft_delete.sql` y `procedimientos.sql` ya
-aplicados. Las salidas entre bloques ` ```text ` son las del motor
-(mensajes fijos de PostgreSQL / del trigger).
+aplicados. Los bloques ` ```text ` muestran el **formato** del
+mensaje del motor o la **salida esperada**; no son capturas pegadas
+de una sesión. La consigna permite incluir capturas, pero esta
+entrega documenta el guion reproducible.
 
 ### 6.1 Atomicidad con `sp_registrar_pedido`
 
@@ -142,12 +144,17 @@ WHERE id_cliente = 1500
 SELECT stock AS stock_despues FROM Producto WHERE id_producto = 1;
 ```
 
-`pedidos_recien` debe ser `0` y `stock_despues` igual a `stock_antes`.
-Pegar acá debajo la salida real de esas dos consultas al reproducir
-en `food_store_dev`:
+**Salida esperada** de las dos consultas finales (mismo `id_producto`
+que en el paso inicial):
 
 ```text
-(pegar salida de psql)
+ pedidos_recien
+----------------
+              0
+
+ stock_despues
+---------------
+       <igual que stock_antes>
 ```
 
 ### 6.2 Pérdida de actualización evitada (`FOR UPDATE`)

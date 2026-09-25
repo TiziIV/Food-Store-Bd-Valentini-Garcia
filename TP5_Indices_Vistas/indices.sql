@@ -37,6 +37,10 @@ INCLUDE (cantidad, precio_unitario);
 DROP INDEX IF EXISTS idx_pedido_id_cliente;
 DROP INDEX IF EXISTS idx_detalle_pedido_id_producto;
 
+-- idx_producto_categoria_precio (TP3) queda subsumido por el
+-- parcial de arriba cuando la consulta filtra activo = TRUE.
+DROP INDEX IF EXISTS idx_producto_categoria_precio;
+
 -- ============================================================
 -- Índice descartado por sobreindexación (NO se crea; se deja
 -- documentado el motivo del descarte, ver specs/spec_idx_pedido_
