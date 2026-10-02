@@ -1,0 +1,355 @@
+El paginador no se usara.
+El despliegue de duracion esta activado.
+DO
+Duracion: 11,466 ms
+=== ANTES (corrida 1: descartar) ===
+                                                                                                QUERY PLAN                                                                                                
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=10377.00..10377.01 rows=5 width=44) (actual time=72.155..77.825 rows=5.00 loops=1)
+   Buffers: shared hit=4361
+   ->  Sort  (cost=10377.00..10377.03 rows=12 width=44) (actual time=72.153..77.822 rows=5.00 loops=1)
+         Sort Key: (sum(((dp.cantidad)::numeric * dp.precio_unitario))) DESC
+         Sort Method: top-N heapsort  Memory: 25kB
+         Buffers: shared hit=4361
+         ->  Finalize GroupAggregate  (cost=10374.22..10376.80 rows=12 width=44) (actual time=72.119..77.804 rows=12.00 loops=1)
+               Group Key: c.nombre_categoria
+               Buffers: shared hit=4358
+               ->  Gather Merge  (cost=10374.22..10376.50 rows=20 width=44) (actual time=72.113..77.789 rows=24.00 loops=1)
+                     Workers Planned: 1
+                     Workers Launched: 1
+                     Buffers: shared hit=4358
+                     ->  Sort  (cost=9374.21..9374.24 rows=12 width=44) (actual time=60.141..60.144 rows=12.00 loops=2)
+                           Sort Key: c.nombre_categoria
+                           Sort Method: quicksort  Memory: 26kB
+                           Buffers: shared hit=4358
+                           Worker 0:  Sort Method: quicksort  Memory: 26kB
+                           ->  Partial HashAggregate  (cost=9373.84..9373.99 rows=12 width=44) (actual time=60.103..60.109 rows=12.00 loops=2)
+                                 Group Key: c.nombre_categoria
+                                 Batches: 1  Memory Usage: 32kB
+                                 Buffers: shared hit=4350
+                                 Worker 0:  Batches: 1  Memory Usage: 32kB
+                                 ->  Hash Join  (cost=3674.45..9314.78 rows=5906 width=22) (actual time=13.234..56.456 rows=10239.00 loops=2)
+                                       Hash Cond: (pr.id_categoria = c.id_categoria)
+                                       Buffers: shared hit=4350
+                                       ->  Hash Join  (cost=3673.18..9292.53 rows=5906 width=18) (actual time=13.181..54.877 rows=10239.00 loops=2)
+                                             Hash Cond: (dp.id_producto = pr.id_producto)
+                                             Buffers: shared hit=4348
+                                             ->  Parallel Hash Join  (cost=2032.07..7635.92 rows=5906 width=18) (actual time=1.995..41.295 rows=10239.00 loops=2)
+                                                   Hash Cond: (dp.id_pedido = ped.id_pedido)
+                                                   Buffers: shared hit=3316
+                                                   ->  Parallel Seq Scan on detalle_pedido dp  (cost=0.00..5295.01 rows=117651 width=26) (actual time=0.007..24.669 rows=200005.50 loops=2)
+                                                         Filter: (NOT eliminado)
+                                                         Buffers: shared hit=2942
+                                                   ->  Parallel Hash  (cost=1958.24..1958.24 rows=5906 width=8) (actual time=1.905..1.905 rows=5119.50 loops=2)
+                                                         Buckets: 16384  Batches: 1  Memory Usage: 544kB
+                                                         Buffers: shared hit=374
+                                                         ->  Parallel Bitmap Heap Scan on pedido ped  (cost=271.35..1958.24 rows=5906 width=8) (actual time=0.799..2.742 rows=10239.00 loops=1)
+                                                               Recheck Cond: ((fecha_hora >= CURRENT_DATE) AND (fecha_hora < (CURRENT_DATE + 1)))
+                                                               Filter: (NOT eliminado)
+                                                               Heap Blocks: exact=321
+                                                               Buffers: shared hit=374
+                                                               ->  Bitmap Index Scan on idx_pedido_fecha_cliente  (cost=0.00..268.84 rows=10041 width=0) (actual time=0.750..0.750 rows=10250.00 loops=1)
+                                                                     Index Cond: ((fecha_hora >= CURRENT_DATE) AND (fecha_hora < (CURRENT_DATE + 1)))
+                                                                     Index Searches: 1
+                                                                     Buffers: shared hit=53
+                                             ->  Hash  (cost=1016.05..1016.05 rows=50005 width=16) (actual time=11.080..11.081 rows=50005.00 loops=2)
+                                                   Buckets: 65536  Batches: 1  Memory Usage: 2856kB
+                                                   Buffers: shared hit=1032
+                                                   ->  Seq Scan on producto pr  (cost=0.00..1016.05 rows=50005 width=16) (actual time=0.033..5.887 rows=50005.00 loops=2)
+                                                         Buffers: shared hit=1032
+                                       ->  Hash  (cost=1.12..1.12 rows=12 width=20) (actual time=0.047..0.047 rows=12.00 loops=2)
+                                             Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                                             Buffers: shared hit=2
+                                             ->  Seq Scan on categoria c  (cost=0.00..1.12 rows=12 width=20) (actual time=0.040..0.041 rows=12.00 loops=2)
+                                                   Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=453
+ Planning Time: 2.126 ms
+ Execution Time: 78.259 ms
+(61 filas)
+
+Duracion: 81,713 ms
+=== ANTES (corrida 2: informar) ===
+                                                                                                QUERY PLAN                                                                                                
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=10377.00..10377.01 rows=5 width=44) (actual time=83.281..88.845 rows=5.00 loops=1)
+   Buffers: shared hit=4355
+   ->  Sort  (cost=10377.00..10377.03 rows=12 width=44) (actual time=83.280..88.844 rows=5.00 loops=1)
+         Sort Key: (sum(((dp.cantidad)::numeric * dp.precio_unitario))) DESC
+         Sort Method: top-N heapsort  Memory: 25kB
+         Buffers: shared hit=4355
+         ->  Finalize GroupAggregate  (cost=10374.22..10376.80 rows=12 width=44) (actual time=83.255..88.835 rows=12.00 loops=1)
+               Group Key: c.nombre_categoria
+               Buffers: shared hit=4355
+               ->  Gather Merge  (cost=10374.22..10376.50 rows=20 width=44) (actual time=83.248..88.819 rows=24.00 loops=1)
+                     Workers Planned: 1
+                     Workers Launched: 1
+                     Buffers: shared hit=4355
+                     ->  Sort  (cost=9374.21..9374.24 rows=12 width=44) (actual time=68.474..68.478 rows=12.00 loops=2)
+                           Sort Key: c.nombre_categoria
+                           Sort Method: quicksort  Memory: 26kB
+                           Buffers: shared hit=4355
+                           Worker 0:  Sort Method: quicksort  Memory: 26kB
+                           ->  Partial HashAggregate  (cost=9373.84..9373.99 rows=12 width=44) (actual time=68.431..68.437 rows=12.00 loops=2)
+                                 Group Key: c.nombre_categoria
+                                 Batches: 1  Memory Usage: 32kB
+                                 Buffers: shared hit=4347
+                                 Worker 0:  Batches: 1  Memory Usage: 32kB
+                                 ->  Hash Join  (cost=3674.45..9314.78 rows=5906 width=22) (actual time=15.881..64.502 rows=10239.00 loops=2)
+                                       Hash Cond: (pr.id_categoria = c.id_categoria)
+                                       Buffers: shared hit=4347
+                                       ->  Hash Join  (cost=3673.18..9292.53 rows=5906 width=18) (actual time=15.740..62.633 rows=10239.00 loops=2)
+                                             Hash Cond: (dp.id_producto = pr.id_producto)
+                                             Buffers: shared hit=4345
+                                             ->  Parallel Hash Join  (cost=2032.07..7635.92 rows=5906 width=18) (actual time=2.095..45.359 rows=10239.00 loops=2)
+                                                   Hash Cond: (dp.id_pedido = ped.id_pedido)
+                                                   Buffers: shared hit=3313
+                                                   ->  Parallel Seq Scan on detalle_pedido dp  (cost=0.00..5295.01 rows=117651 width=26) (actual time=0.012..26.296 rows=200005.50 loops=2)
+                                                         Filter: (NOT eliminado)
+                                                         Buffers: shared hit=2942
+                                                   ->  Parallel Hash  (cost=1958.24..1958.24 rows=5906 width=8) (actual time=1.980..1.980 rows=5119.50 loops=2)
+                                                         Buckets: 16384  Batches: 1  Memory Usage: 544kB
+                                                         Buffers: shared hit=371
+                                                         ->  Parallel Bitmap Heap Scan on pedido ped  (cost=271.35..1958.24 rows=5906 width=8) (actual time=0.533..2.414 rows=10239.00 loops=1)
+                                                               Recheck Cond: ((fecha_hora >= CURRENT_DATE) AND (fecha_hora < (CURRENT_DATE + 1)))
+                                                               Filter: (NOT eliminado)
+                                                               Heap Blocks: exact=321
+                                                               Buffers: shared hit=371
+                                                               ->  Bitmap Index Scan on idx_pedido_fecha_cliente  (cost=0.00..268.84 rows=10041 width=0) (actual time=0.477..0.478 rows=10250.00 loops=1)
+                                                                     Index Cond: ((fecha_hora >= CURRENT_DATE) AND (fecha_hora < (CURRENT_DATE + 1)))
+                                                                     Index Searches: 1
+                                                                     Buffers: shared hit=50
+                                             ->  Hash  (cost=1016.05..1016.05 rows=50005 width=16) (actual time=13.482..13.482 rows=50005.00 loops=2)
+                                                   Buckets: 65536  Batches: 1  Memory Usage: 2856kB
+                                                   Buffers: shared hit=1032
+                                                   ->  Seq Scan on producto pr  (cost=0.00..1016.05 rows=50005 width=16) (actual time=0.048..6.666 rows=50005.00 loops=2)
+                                                         Buffers: shared hit=1032
+                                       ->  Hash  (cost=1.12..1.12 rows=12 width=20) (actual time=0.130..0.131 rows=12.00 loops=2)
+                                             Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                                             Buffers: shared hit=2
+                                             ->  Seq Scan on categoria c  (cost=0.00..1.12 rows=12 width=20) (actual time=0.121..0.122 rows=12.00 loops=2)
+                                                   Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=38
+ Planning Time: 0.567 ms
+ Execution Time: 89.186 ms
+(61 filas)
+
+Duracion: 90,203 ms
+=== RESULTADO NORMALIZADO ===
+           categoria           | total_vendido 
+-------------------------------+---------------
+ Pizzas                        |   12876101.70
+ Postres                       |   12681893.95
+ Limpieza                      |   12631788.65
+ Perfumería y Cuidado Personal |   12227746.68
+ Lácteos                       |   12092351.83
+(5 filas)
+
+Duracion: 66,811 ms
+BEGIN
+Duracion: 0,097 ms
+ALTER TABLE
+Duracion: 0,486 ms
+UPDATE 400011
+Duracion: 8354,999 ms (00:08,355)
+ALTER TABLE
+Duracion: 50,249 ms
+CREATE FUNCTION
+Duracion: 1,202 ms
+psql:TP6_FNBC_Desnormalizacion/tp_desnormalizacion_top_categorias.sql:137: NOTICE:  “trigger” «trg_dp_sync_categoria_nombre» para la relación «detalle_pedido» no existe, omitiendo
+DROP TRIGGER
+Duracion: 1,485 ms
+CREATE TRIGGER
+Duracion: 1,202 ms
+CREATE FUNCTION
+Duracion: 0,215 ms
+psql:TP6_FNBC_Desnormalizacion/tp_desnormalizacion_top_categorias.sql:155: NOTICE:  “trigger” «trg_categoria_propagar_nombre» para la relación «categoria» no existe, omitiendo
+DROP TRIGGER
+Duracion: 0,110 ms
+CREATE TRIGGER
+Duracion: 0,203 ms
+CREATE FUNCTION
+Duracion: 0,115 ms
+psql:TP6_FNBC_Desnormalizacion/tp_desnormalizacion_top_categorias.sql:176: NOTICE:  “trigger” «trg_producto_propagar_categoria» para la relación «producto» no existe, omitiendo
+DROP TRIGGER
+Duracion: 0,190 ms
+CREATE TRIGGER
+Duracion: 0,109 ms
+COMMIT
+Duracion: 17,142 ms
+ANALYZE
+Duracion: 112,715 ms
+=== DESPUÉS (corrida 1: descartar) ===
+                                                                                          QUERY PLAN                                                                                          
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=11737.32..11737.33 rows=5 width=44) (actual time=62.418..68.038 rows=5.00 loops=1)
+   Buffers: shared hit=5908 read=983 dirtied=727 written=906
+   ->  Sort  (cost=11737.32..11737.35 rows=12 width=44) (actual time=62.417..68.036 rows=5.00 loops=1)
+         Sort Key: (sum(((dp.cantidad)::numeric * dp.precio_unitario))) DESC
+         Sort Method: top-N heapsort  Memory: 25kB
+         Buffers: shared hit=5908 read=983 dirtied=727 written=906
+         ->  Finalize GroupAggregate  (cost=11733.37..11737.12 rows=12 width=44) (actual time=62.383..68.024 rows=12.00 loops=1)
+               Group Key: dp.categoria_nombre
+               Buffers: shared hit=5908 read=983 dirtied=727 written=906
+               ->  Gather Merge  (cost=11733.37..11736.75 rows=29 width=44) (actual time=62.373..68.003 rows=36.00 loops=1)
+                     Workers Planned: 2
+                     Workers Launched: 2
+                     Buffers: shared hit=5908 read=983 dirtied=727 written=906
+                     ->  Sort  (cost=10733.35..10733.38 rows=12 width=44) (actual time=42.700..42.702 rows=12.00 loops=3)
+                           Sort Key: dp.categoria_nombre
+                           Sort Method: quicksort  Memory: 26kB
+                           Buffers: shared hit=5908 read=983 dirtied=727 written=906
+                           Worker 0:  Sort Method: quicksort  Memory: 26kB
+                           Worker 1:  Sort Method: quicksort  Memory: 26kB
+                           ->  Partial HashAggregate  (cost=10732.98..10733.13 rows=12 width=44) (actual time=42.659..42.664 rows=12.00 loops=3)
+                                 Group Key: dp.categoria_nombre
+                                 Batches: 1  Memory Usage: 32kB
+                                 Buffers: shared hit=5892 read=983 dirtied=727 written=906
+                                 Worker 0:  Batches: 1  Memory Usage: 32kB
+                                 Worker 1:  Batches: 1  Memory Usage: 32kB
+                                 ->  Parallel Hash Join  (cost=2032.07..10649.30 rows=8368 width=22) (actual time=10.376..40.258 rows=6826.00 loops=3)
+                                       Hash Cond: (dp.id_pedido = ped.id_pedido)
+                                       Buffers: shared hit=5892 read=983 dirtied=727 written=906
+                                       ->  Parallel Seq Scan on detalle_pedido dp  (cost=0.00..8179.71 rows=166671 width=30) (actual time=7.765..26.566 rows=133337.00 loops=3)
+                                             Filter: (NOT eliminado)
+                                             Buffers: shared hit=5770 read=743 dirtied=727 written=743
+                                       ->  Parallel Hash  (cost=1958.24..1958.24 rows=5906 width=8) (actual time=2.549..2.550 rows=3413.00 loops=3)
+                                             Buckets: 16384  Batches: 1  Memory Usage: 544kB
+                                             Buffers: shared hit=122 read=240 written=163
+                                             ->  Parallel Bitmap Heap Scan on pedido ped  (cost=271.35..1958.24 rows=5906 width=8) (actual time=0.763..6.200 rows=10239.00 loops=1)
+                                                   Recheck Cond: ((fecha_hora >= CURRENT_DATE) AND (fecha_hora < (CURRENT_DATE + 1)))
+                                                   Filter: (NOT eliminado)
+                                                   Heap Blocks: exact=312
+                                                   Buffers: shared hit=122 read=240 written=163
+                                                   ->  Bitmap Index Scan on idx_pedido_fecha_cliente  (cost=0.00..268.84 rows=10041 width=0) (actual time=0.726..0.726 rows=10239.00 loops=1)
+                                                         Index Cond: ((fecha_hora >= CURRENT_DATE) AND (fecha_hora < (CURRENT_DATE + 1)))
+                                                         Index Searches: 1
+                                                         Buffers: shared hit=3 read=47
+ Planning:
+   Buffers: shared hit=61 read=12
+ Planning Time: 0.939 ms
+ Execution Time: 68.106 ms
+(47 filas)
+
+Duracion: 69,815 ms
+=== DESPUÉS (corrida 2: informar) ===
+                                                                                          QUERY PLAN                                                                                          
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=11737.32..11737.33 rows=5 width=44) (actual time=50.923..56.632 rows=5.00 loops=1)
+   Buffers: shared hit=6891
+   ->  Sort  (cost=11737.32..11737.35 rows=12 width=44) (actual time=50.922..56.630 rows=5.00 loops=1)
+         Sort Key: (sum(((dp.cantidad)::numeric * dp.precio_unitario))) DESC
+         Sort Method: top-N heapsort  Memory: 25kB
+         Buffers: shared hit=6891
+         ->  Finalize GroupAggregate  (cost=11733.37..11737.12 rows=12 width=44) (actual time=50.891..56.621 rows=12.00 loops=1)
+               Group Key: dp.categoria_nombre
+               Buffers: shared hit=6891
+               ->  Gather Merge  (cost=11733.37..11736.75 rows=29 width=44) (actual time=50.883..56.600 rows=36.00 loops=1)
+                     Workers Planned: 2
+                     Workers Launched: 2
+                     Buffers: shared hit=6891
+                     ->  Sort  (cost=10733.35..10733.38 rows=12 width=44) (actual time=33.295..33.298 rows=12.00 loops=3)
+                           Sort Key: dp.categoria_nombre
+                           Sort Method: quicksort  Memory: 26kB
+                           Buffers: shared hit=6891
+                           Worker 0:  Sort Method: quicksort  Memory: 26kB
+                           Worker 1:  Sort Method: quicksort  Memory: 26kB
+                           ->  Partial HashAggregate  (cost=10732.98..10733.13 rows=12 width=44) (actual time=33.254..33.259 rows=12.00 loops=3)
+                                 Group Key: dp.categoria_nombre
+                                 Batches: 1  Memory Usage: 32kB
+                                 Buffers: shared hit=6875
+                                 Worker 0:  Batches: 1  Memory Usage: 32kB
+                                 Worker 1:  Batches: 1  Memory Usage: 32kB
+                                 ->  Parallel Hash Join  (cost=2032.07..10649.30 rows=8368 width=22) (actual time=2.039..30.881 rows=6826.00 loops=3)
+                                       Hash Cond: (dp.id_pedido = ped.id_pedido)
+                                       Buffers: shared hit=6875
+                                       ->  Parallel Seq Scan on detalle_pedido dp  (cost=0.00..8179.71 rows=166671 width=30) (actual time=0.871..19.427 rows=133337.00 loops=3)
+                                             Filter: (NOT eliminado)
+                                             Buffers: shared hit=6513
+                                       ->  Parallel Hash  (cost=1958.24..1958.24 rows=5906 width=8) (actual time=1.100..1.101 rows=3413.00 loops=3)
+                                             Buckets: 16384  Batches: 1  Memory Usage: 544kB
+                                             Buffers: shared hit=362
+                                             ->  Parallel Bitmap Heap Scan on pedido ped  (cost=271.35..1958.24 rows=5906 width=8) (actual time=0.475..2.022 rows=10239.00 loops=1)
+                                                   Recheck Cond: ((fecha_hora >= CURRENT_DATE) AND (fecha_hora < (CURRENT_DATE + 1)))
+                                                   Filter: (NOT eliminado)
+                                                   Heap Blocks: exact=312
+                                                   Buffers: shared hit=362
+                                                   ->  Bitmap Index Scan on idx_pedido_fecha_cliente  (cost=0.00..268.84 rows=10041 width=0) (actual time=0.428..0.428 rows=10239.00 loops=1)
+                                                         Index Cond: ((fecha_hora >= CURRENT_DATE) AND (fecha_hora < (CURRENT_DATE + 1)))
+                                                         Index Searches: 1
+                                                         Buffers: shared hit=50
+ Planning:
+   Buffers: shared hit=23
+ Planning Time: 0.331 ms
+ Execution Time: 56.685 ms
+(47 filas)
+
+Duracion: 57,417 ms
+=== RESULTADO DESNORMALIZADO ===
+           categoria           | total_vendido 
+-------------------------------+---------------
+ Pizzas                        |   12876101.70
+ Postres                       |   12681893.95
+ Limpieza                      |   12631788.65
+ Perfumería y Cuidado Personal |   12227746.68
+ Lácteos                       |   12092351.83
+(5 filas)
+
+Duracion: 53,193 ms
+=== AUDITORÍA (esperado: 0 filas) ===
+ id_pedido | id_producto | valor_desnormalizado | valor_fuente_verdad 
+-----------+-------------+----------------------+---------------------
+(0 filas)
+
+Duracion: 160,344 ms
+=== P1: INSERT con categoria_nombre forzada a un valor falso ===
+BEGIN
+Duracion: 0,107 ms
+ id_pedido | id_producto | categoria_nombre 
+-----------+-------------+------------------
+    200004 |           1 | Pizzas
+(1 fila)
+
+INSERT 0 1
+Duracion: 2,751 ms
+ROLLBACK
+Duracion: 0,074 ms
+=== P2: renombre de categoría 1 ===
+BEGIN
+Duracion: 0,044 ms
+UPDATE 1
+Duracion: 1231,627 ms (00:01,232)
+ detalles_con_nombre_nuevo 
+---------------------------
+                     33387
+(1 fila)
+
+Duracion: 46,449 ms
+ filas_desincronizadas 
+-----------------------
+                     0
+(1 fila)
+
+Duracion: 90,889 ms
+ROLLBACK
+Duracion: 0,209 ms
+=== P3: producto 1 pasa a la categoría 2 ===
+BEGIN
+Duracion: 0,054 ms
+UPDATE 1
+Duracion: 1,009 ms
+ categoria_nombre 
+------------------
+ Bebidas
+(1 fila)
+
+Duracion: 0,273 ms
+ filas_desincronizadas 
+-----------------------
+                     0
+(1 fila)
+
+Duracion: 100,465 ms
+ROLLBACK
+Duracion: 0,136 ms
