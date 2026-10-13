@@ -1,0 +1,9 @@
+SET
+BEGIN
+UPDATE 10000
+ANALYZE
+COMMIT
+ pedidos_hoy | detalles_hoy
+-------------+--------------
+       10198 |        20396
+(1 row)

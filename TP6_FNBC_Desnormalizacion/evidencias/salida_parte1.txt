@@ -1,0 +1,60 @@
+BEGIN
+CREATE SCHEMA
+SET
+psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/outputs/tp_fnbc_control_lote.sql:6: NOTICE:  view "vista_control_lote_almacen_fnbc" does not exist, skipping
+DROP VIEW
+psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/outputs/tp_fnbc_control_lote.sql:7: NOTICE:  table "asignacion_control_lote" does not exist, skipping
+psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/outputs/tp_fnbc_control_lote.sql:7: NOTICE:  table "responsable_deposito" does not exist, skipping
+psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/outputs/tp_fnbc_control_lote.sql:7: NOTICE:  table "control_lote_almacen" does not exist, skipping
+DROP TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+INSERT 0 3
+INSERT 0 3
+INSERT 0 3
+CREATE TABLE
+INSERT 0 3
+CREATE TABLE
+CREATE TABLE
+INSERT 0 2
+INSERT 0 3
+CREATE VIEW
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE TRIGGER
+CREATE TRIGGER
+CREATE TRIGGER
+CREATE TRIGGER
+RECONSTRUCCION Y DIFERENCIAS (esperado: 3 filas y 0 diferencias)
+ lote_id | deposito_id | responsable_control_id
+---------+-------------+------------------------
+     501 |          30 |                    801
+     503 |          31 |                    802
+     502 |          30 |                    801
+(3 rows)
+
+ lote_id | deposito_id | responsable_control_id
+---------+-------------+------------------------
+(0 rows)
+
+ lote_id | deposito_id | responsable_control_id
+---------+-------------+------------------------
+(0 rows)
+
+ original | reconstruida
+----------+--------------
+        3 |            3
+(1 row)
+
+INSERT 0 1
+psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/outputs/tp_fnbc_control_lote.sql:83: NOTICE:  OK: asignacion duplicada rechazada
+psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/outputs/tp_fnbc_control_lote.sql:83: NOTICE:  OK: cambio de deposito rechazado
+DO
+ responsable_control_id | deposito_id
+------------------------+-------------
+                    803 |          30
+(1 row)
+
+COMMIT

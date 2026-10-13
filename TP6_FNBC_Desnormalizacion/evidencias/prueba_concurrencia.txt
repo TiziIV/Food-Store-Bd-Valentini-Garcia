@@ -1,0 +1,7 @@
+A: renombre con COMMIT, mutex adquirido, espera de 4 s.
+B: INSERT concurrente iniciado tras confirmar bloqueo de A.
+Duracion B: 4.022 segundos.
+Nombre derivado por B: U4 Concurrente despues
+Auditoria global: 0 filas.
+Resultado: OK.
+Fixtures eliminados tras la prueba.

@@ -122,4 +122,4 @@ aceptó, modificó o descartó de cada propuesta de la IA está en el
 
 ## Unidad 4: TP6 - FNBC y desnormalización
 
-La entrega está en [TP6_FNBC_Desnormalizacion](TP6_FNBC_Desnormalizacion/README.md): dos scripts SQL y el informe PDF. Consultar ese README para ejecutar y el PDF para el análisis y las evidencias.
+La entrega está en [TP6_FNBC_Desnormalizacion](TP6_FNBC_Desnormalizacion/README.md). Los dos SQL y el informe PDF están en la raíz de TP6; las salidas y capturas en `evidencias/`, y los scripts auxiliares en `herramientas/`.
