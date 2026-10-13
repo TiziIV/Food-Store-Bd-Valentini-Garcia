@@ -1,60 +1,107 @@
-BEGIN
+Pager usage is off.
 CREATE SCHEMA
 SET
-psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/outputs/tp_fnbc_control_lote.sql:6: NOTICE:  view "vista_control_lote_almacen_fnbc" does not exist, skipping
+BEGIN
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
 DROP VIEW
-psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/outputs/tp_fnbc_control_lote.sql:7: NOTICE:  table "asignacion_control_lote" does not exist, skipping
-psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/outputs/tp_fnbc_control_lote.sql:7: NOTICE:  table "responsable_deposito" does not exist, skipping
-psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/outputs/tp_fnbc_control_lote.sql:7: NOTICE:  table "control_lote_almacen" does not exist, skipping
+DROP TABLE
+DROP TABLE
 DROP TABLE
 CREATE TABLE
-CREATE TABLE
-CREATE TABLE
-CREATE TABLE
 INSERT 0 3
-INSERT 0 3
-INSERT 0 3
+COMMIT
+DO
+BEGIN
+DELETE 1
+                                   demo                                   | filas
+--------------------------------------------------------------------------+-------
+ ANOMALÍA DE BORRADO: filas que mencionan a 802 tras cancelar el lote 503 |     0
+(1 row)
+
+ROLLBACK
+BEGIN
+UPDATE 1
+                              demo                              | responsable_control_id | depositos_distintos
+----------------------------------------------------------------+------------------------+---------------------
+ ANOMALÍA DE ACTUALIZACIÓN: responsables con más de un depósito |                    801 |                   2
+(1 row)
+
+ROLLBACK
+BEGIN
 CREATE TABLE
-INSERT 0 3
 CREATE TABLE
+CREATE INDEX
 CREATE TABLE
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE TRIGGER
+CREATE TRIGGER
+CREATE TRIGGER
+CREATE TRIGGER
+CREATE VIEW
 INSERT 0 2
 INSERT 0 3
-CREATE VIEW
-CREATE FUNCTION
-CREATE FUNCTION
-CREATE TRIGGER
-CREATE TRIGGER
-CREATE TRIGGER
-CREATE TRIGGER
-RECONSTRUCCION Y DIFERENCIAS (esperado: 3 filas y 0 diferencias)
+ lote_id | deposito_id | responsable_control_id
+---------+-------------+------------------------
+(0 rows)
+
+ lote_id | deposito_id | responsable_control_id
+---------+-------------+------------------------
+(0 rows)
+
+ filas_original | filas_vista
+----------------+-------------
+              3 |           3
+(1 row)
+
  lote_id | deposito_id | responsable_control_id
 ---------+-------------+------------------------
      501 |          30 |                    801
-     503 |          31 |                    802
      502 |          30 |                    801
+     503 |          31 |                    802
 (3 rows)
 
- lote_id | deposito_id | responsable_control_id
----------+-------------+------------------------
-(0 rows)
-
- lote_id | deposito_id | responsable_control_id
----------+-------------+------------------------
-(0 rows)
-
- original | reconstruida
-----------+--------------
-        3 |            3
-(1 row)
-
-INSERT 0 1
-psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/outputs/tp_fnbc_control_lote.sql:83: NOTICE:  OK: asignacion duplicada rechazada
-psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/outputs/tp_fnbc_control_lote.sql:83: NOTICE:  OK: cambio de deposito rechazado
 DO
- responsable_control_id | deposito_id
-------------------------+-------------
-                    803 |          30
+COMMIT
+BEGIN
+INSERT 0 1
+                   demo                    | responsable_control_id | deposito_id
+-------------------------------------------+------------------------+-------------
+ INSERCIÓN OK: 803 -> depósito 32 sin lote |                    803 |          32
 (1 row)
 
-COMMIT
+ROLLBACK
+BEGIN
+DELETE 1
+                 demo                 | responsable_control_id | deposito_id
+--------------------------------------+------------------------+-------------
+ BORRADO OK: 802 conserva su depósito |                    802 |          31
+(1 row)
+
+ROLLBACK
+BEGIN
+UPDATE 1
+                   demo                    | responsable_control_id | depositos_distintos
+-------------------------------------------+------------------------+---------------------
+ ACTUALIZACIÓN OK: 801 en un solo depósito |                    801 |                   1
+ ACTUALIZACIÓN OK: 801 en un solo depósito |                    802 |                   1
+(2 rows)
+
+ROLLBACK
+BEGIN
+INSERT 0 1
+DO
+ROLLBACK
+psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/work/foodstore/TP6_FNBC_Desnormalizacion/tp_fnbc_control_lote.sql:21: NOTICE:  schema "tp_u4_fnbc" already exists, skipping
+psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/work/foodstore/TP6_FNBC_Desnormalizacion/tp_fnbc_control_lote.sql:27: NOTICE:  relation "lote" already exists, skipping
+psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/work/foodstore/TP6_FNBC_Desnormalizacion/tp_fnbc_control_lote.sql:28: NOTICE:  relation "deposito" already exists, skipping
+psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/work/foodstore/TP6_FNBC_Desnormalizacion/tp_fnbc_control_lote.sql:29: NOTICE:  relation "usuario" already exists, skipping
+psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/work/foodstore/TP6_FNBC_Desnormalizacion/tp_fnbc_control_lote.sql:73: NOTICE:  ANOMALÍA DE INSERCIÓN: no se puede registrar que 803 pertenece al depósito 32 sin un lote (null value in column "lote_id" of relation "control_lote_almacen" violates not-null constraint).
+psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/work/foodstore/TP6_FNBC_Desnormalizacion/tp_fnbc_control_lote.sql:133: NOTICE:  relation "mutex_fnbc" already exists, skipping
+psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/work/foodstore/TP6_FNBC_Desnormalizacion/tp_fnbc_control_lote.sql:246: NOTICE:  DF1 protegida: segundo responsable del mismo deposito rechazado
+psql:C:/Users/Juan/Documents/Codex/2026-10-13/ay/work/foodstore/TP6_FNBC_Desnormalizacion/tp_fnbc_control_lote.sql:246: NOTICE:  DF1 protegida: cambio de deposito incompatible rechazado

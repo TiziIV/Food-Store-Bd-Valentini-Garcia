@@ -114,8 +114,7 @@ consulta— siguió el mismo proceso en todos los TP: especificación en
 Kiro, generación con OpenCode como agente de codificación en
 terminal, lectura línea por línea del resultado antes de ejecutarlo,
 prueba sobre una copia de la base dentro de una transacción
-reversible (protocolo de `protocolo_seguridad.md`), y un commit de
-Git separado y descriptivo por cada pieza. El detalle de qué se
+reversible (protocolo de `protocolo_seguridad.md`). El detalle de qué se
 aceptó, modificó o descartó de cada propuesta de la IA está en el
 `duia.md` de cada carpeta.
 

@@ -26,7 +26,9 @@
 -- No se agregan columnas fecha ni subtotal: serían redundancia adicional no
 -- pedida. La única redundancia introducida es categoria_nombre.
 --
--- Uso:  psql -d food_store -f tp_desnormalizacion_top_categorias.sql > salida_parte2.txt
+-- Uso desde la raiz del repositorio:
+-- psql -d food_store -f TP6_FNBC_Desnormalizacion/tp_desnormalizacion_top_categorias.sql
+-- Guardar la salida en TP6_FNBC_Desnormalizacion/evidencias/salida_parte2.txt
 -- ============================================================================
 
 \set ON_ERROR_STOP on
@@ -39,16 +41,18 @@ SET search_path = public;
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns
-                   WHERE table_name = 'pedido' AND column_name = 'eliminado')
+                   WHERE table_schema = 'public' AND table_name = 'pedido' AND column_name = 'eliminado')
        OR NOT EXISTS (SELECT 1 FROM information_schema.columns
-                      WHERE table_name = 'detalle_pedido' AND column_name = 'eliminado') THEN
+                      WHERE table_schema = 'public' AND table_name = 'detalle_pedido' AND column_name = 'eliminado') THEN
         RAISE EXCEPTION 'Falta TP5_Indices_Vistas/soft_delete.sql (columna eliminado en Pedido/Detalle_Pedido)';
     END IF;
 END $$;
 
 -- ============================================================================
 -- 5.2 (a) MEDICIÓN "ANTES": consulta normalizada (4 tablas)
--- Se ejecuta dos veces; la segunda (caché caliente) es la que se informa.
+-- Se ejecuta dos veces: calentamiento y medicion. No implica que todos los
+-- bloques residan en shared_buffers. Las repeticiones complementarias se
+-- ejecutan con herramientas/repetir_mediciones.py.
 -- ============================================================================
 \echo '=== ANTES (corrida 1: descartar) ==='
 EXPLAIN (ANALYZE, BUFFERS)
