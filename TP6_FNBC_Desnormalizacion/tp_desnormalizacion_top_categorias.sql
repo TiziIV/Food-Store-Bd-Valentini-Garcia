@@ -32,6 +32,8 @@
 \set ON_ERROR_STOP on
 \pset pager off
 \timing on
+SET TIME ZONE 'America/Argentina/Buenos_Aires';
+SET search_path = public;
 
 -- Verificación de prerrequisitos: falla con un mensaje claro si falta algo.
 DO $$
@@ -101,6 +103,32 @@ LIMIT 5;
 -- ============================================================================
 BEGIN;
 
+-- Instalacion atomica: bloquear fuentes para que la migracion y los triggers
+-- se instalen sobre un estado consistente. Usar solo en copia de trabajo.
+LOCK TABLE Categoria, Producto, Detalle_Pedido IN SHARE ROW EXCLUSIVE MODE;
+CREATE TABLE IF NOT EXISTS tp_u4_mutex_categoria (id INTEGER PRIMARY KEY);
+-- Serializacion conservadora de escrituras fuente: evita la carrera entre
+-- un INSERT de detalle y un renombre/reclasificacion concurrente.
+-- No bloquea SELECT. Se restringe a READ COMMITTED (snapshots nuevos).
+CREATE OR REPLACE FUNCTION fn_u4_bloquear_categoria() RETURNS trigger
+LANGUAGE plpgsql SET search_path = public AS $$
+BEGIN
+ IF current_setting('transaction_isolation') <> 'read committed' THEN
+  RAISE EXCEPTION 'Sincronizacion U4 requiere READ COMMITTED';
+ END IF;
+ LOCK TABLE tp_u4_mutex_categoria IN SHARE ROW EXCLUSIVE MODE;
+ RETURN NULL;
+END $$;
+DROP TRIGGER IF EXISTS a_u4_serializar ON Categoria;
+DROP TRIGGER IF EXISTS a_u4_serializar ON Producto;
+DROP TRIGGER IF EXISTS a_u4_serializar ON Detalle_Pedido;
+CREATE TRIGGER a_u4_serializar BEFORE INSERT OR UPDATE OR DELETE OR TRUNCATE ON Categoria
+ FOR EACH STATEMENT EXECUTE FUNCTION fn_u4_bloquear_categoria();
+CREATE TRIGGER a_u4_serializar BEFORE INSERT OR UPDATE OR DELETE OR TRUNCATE ON Producto
+ FOR EACH STATEMENT EXECUTE FUNCTION fn_u4_bloquear_categoria();
+CREATE TRIGGER a_u4_serializar BEFORE INSERT OR UPDATE OR DELETE OR TRUNCATE ON Detalle_Pedido
+ FOR EACH STATEMENT EXECUTE FUNCTION fn_u4_bloquear_categoria();
+
 -- 1) Columna redundante. Primero se agrega nullable, se migra y recién
 --    después se exige NOT NULL (la tabla tiene ~400.000 filas).
 ALTER TABLE Detalle_Pedido ADD COLUMN IF NOT EXISTS categoria_nombre VARCHAR(80);
@@ -119,7 +147,7 @@ ALTER TABLE Detalle_Pedido ALTER COLUMN categoria_nombre SET NOT NULL;
 
 -- 3.1 Alta de un detalle o cambio de su producto: la columna SIEMPRE se
 --     recalcula desde la fuente; ningún valor enviado por el cliente se respeta.
-CREATE OR REPLACE FUNCTION fn_dp_sync_categoria_nombre() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION fn_dp_sync_categoria_nombre() RETURNS TRIGGER SET search_path = public AS $$
 BEGIN
     SELECT c.nombre_categoria
     INTO NEW.categoria_nombre
@@ -140,7 +168,7 @@ CREATE TRIGGER trg_dp_sync_categoria_nombre
     FOR EACH ROW EXECUTE FUNCTION fn_dp_sync_categoria_nombre();
 
 -- 3.2 Renombre de una categoría: se propaga a los detalles de sus productos.
-CREATE OR REPLACE FUNCTION fn_categoria_propagar_nombre() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION fn_categoria_propagar_nombre() RETURNS TRIGGER SET search_path = public AS $$
 BEGIN
     UPDATE Detalle_Pedido dp
     SET categoria_nombre = NEW.nombre_categoria
@@ -162,7 +190,7 @@ CREATE TRIGGER trg_categoria_propagar_nombre
 -- 3.3 Cambio de categoría de un producto: se propaga a sus detalles.
 --     (Semántica: el reporte refleja la categoría VIGENTE del catálogo, igual
 --     que la consulta normalizada, que une con Categoria en el momento de leer.)
-CREATE OR REPLACE FUNCTION fn_producto_propagar_categoria() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION fn_producto_propagar_categoria() RETURNS TRIGGER SET search_path = public AS $$
 BEGIN
     UPDATE Detalle_Pedido dp
     SET categoria_nombre = (SELECT c.nombre_categoria
@@ -288,6 +316,11 @@ ROLLBACK;
 -- REVERSIÓN (sin pérdida de información: categoria_nombre es un dato derivado)
 -- Descomentar para volver al esquema normalizado.
 -- ============================================================================
+-- DROP TRIGGER IF EXISTS a_u4_serializar ON Categoria;
+-- DROP TRIGGER IF EXISTS a_u4_serializar ON Producto;
+-- DROP TRIGGER IF EXISTS a_u4_serializar ON Detalle_Pedido;
+-- DROP FUNCTION IF EXISTS fn_u4_bloquear_categoria();
+-- DROP TABLE IF EXISTS tp_u4_mutex_categoria;
 -- DROP TRIGGER IF EXISTS trg_dp_sync_categoria_nombre   ON Detalle_Pedido;
 -- DROP TRIGGER IF EXISTS trg_categoria_propagar_nombre  ON Categoria;
 -- DROP TRIGGER IF EXISTS trg_producto_propagar_categoria ON Producto;
@@ -295,3 +328,21 @@ ROLLBACK;
 -- DROP FUNCTION IF EXISTS fn_categoria_propagar_nombre();
 -- DROP FUNCTION IF EXISTS fn_producto_propagar_categoria();
 -- ALTER TABLE Detalle_Pedido DROP COLUMN categoria_nombre;
+
+\echo '=== EQUIVALENCIA AUTOMATICA (esperado: 0) ==='
+WITH normal AS (
+ SELECT c.nombre_categoria categoria,SUM(dp.cantidad*dp.precio_unitario) total
+ FROM detalle_pedido dp JOIN producto pr USING(id_producto)
+ JOIN categoria c USING(id_categoria) JOIN pedido ped USING(id_pedido)
+ WHERE ped.fecha_hora >= CURRENT_DATE AND ped.fecha_hora < CURRENT_DATE+1
+ AND NOT dp.eliminado AND NOT ped.eliminado GROUP BY c.nombre_categoria
+), redundante AS (
+ SELECT dp.categoria_nombre categoria,SUM(dp.cantidad*dp.precio_unitario) total
+ FROM detalle_pedido dp JOIN pedido ped USING(id_pedido)
+ WHERE ped.fecha_hora >= CURRENT_DATE AND ped.fecha_hora < CURRENT_DATE+1
+ AND NOT dp.eliminado AND NOT ped.eliminado GROUP BY dp.categoria_nombre
+), diferencias AS (
+ (TABLE normal EXCEPT ALL TABLE redundante) UNION ALL
+ (TABLE redundante EXCEPT ALL TABLE normal)
+)
+SELECT COUNT(*) diferencias_antes_despues FROM diferencias;

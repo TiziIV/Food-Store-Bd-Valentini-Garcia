@@ -1,3 +1,5 @@
+\set ON_ERROR_STOP on
+SET TIME ZONE 'America/Argentina/Buenos_Aires';
 -- ============================================================================
 -- TP U4 - PARTE 2 (paso previo, SOLO sobre la copia de trabajo)
 -- Concentra pedidos en el día de hoy para que el reporte "top 5 categorías

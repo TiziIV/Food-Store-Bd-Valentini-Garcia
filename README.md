@@ -118,3 +118,10 @@ reversible (protocolo de `protocolo_seguridad.md`), y un commit de
 Git separado y descriptivo por cada pieza. El detalle de qué se
 aceptó, modificó o descartó de cada propuesta de la IA está en el
 `duia.md` de cada carpeta.
+
+
+## Unidad 4: TP6 - FNBC y desnormalización
+
+La entrega corregida está en [TP6_FNBC_Desnormalizacion](TP6_FNBC_Desnormalizacion/README.md). Incluye dos scripts SQL, informe PDF, editable Markdown y evidencias de ejecución local sobre la carga de Food Store del proyecto. Mediana de siete mediciones alternadas: 77,258 ms antes y 65,942 ms después; auditoría y equivalencia sin diferencias. Las medidas corresponden al 13/10/2026; los datos son de desarrollo.
+
+Para la consigna de U4 entregar el enlace a este repositorio, con los tres artefactos de TP6 subidos.

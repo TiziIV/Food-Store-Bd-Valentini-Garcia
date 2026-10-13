@@ -1,0 +1,1 @@
+OK: B espero 4.080 s; nombre=U4 Concurrente despues; auditoria=0
