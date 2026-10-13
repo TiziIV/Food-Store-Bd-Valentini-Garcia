@@ -11,7 +11,7 @@
 -- PRERREQUISITOS (orden completo en el README del repositorio):
 --   1. TP1/schema.sql + TP5/data.sql + TP2/restricciones.sql + TP5/indices.sql
 --   2. TP5/soft_delete.sql   (columnas "eliminado" en Pedido y Detalle_Pedido)
---   3. tp_preparar_datos_hoy.sql (volumen de pedidos en el día actual)
+--   3. Preparacion opcional de datos de hoy, indicada en el README de TP6
 --
 -- ADAPTACIÓN de la consulta de la consigna al esquema real del proyecto:
 --   consigna                      esquema real (TP1)

@@ -1,7 +1,0 @@
-Backup restaurado correctamente en otra base.
-Scripts Parte 1 y Parte 2 reejecutados: OK.
-Columna redundante retirada: 0 columnas restantes.
-Triggers preexistentes conservados: 3.
-Firma fuente antes: 400011|2753523856.73
-Firma fuente despues: 400011|2753523856.73
-Reversion: OK, filas y suma monetaria sin cambios.
