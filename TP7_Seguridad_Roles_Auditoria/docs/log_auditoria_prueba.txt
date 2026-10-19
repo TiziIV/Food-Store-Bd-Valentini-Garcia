@@ -1,0 +1,54 @@
+2026-10-19 15:57:27.357 -03 [23980] [app=[desconocido]] [user=[desconocido]@[desconocido]] [host=127.0.0.1] LOG:  conexión recibida: host=127.0.0.1 port=58043
+2026-10-19 15:57:27.358 -03 [23980] [app=[desconocido]] [user=postgres@food_store_dev] [host=127.0.0.1] LOG:  conexión autenticada: usuario=«postgres» método=trust (C:/Program Files/PostgreSQL/18/data/pg_hba.conf:115)
+2026-10-19 15:57:27.358 -03 [23980] [app=[desconocido]] [user=postgres@food_store_dev] [host=127.0.0.1] LOG:  conexión autorizada: usuario=postgres base_de_datos=food_store_dev nombre_de_aplicación=psql
+2026-10-19 15:57:27.360 -03 [23980] [app=psql] [user=postgres@food_store_dev] [host=127.0.0.1] LOG:  sentencia: ALTER SYSTEM SET logging_collector = 'on';
+2026-10-19 15:57:27.380 -03 [23980] [app=psql] [user=postgres@food_store_dev] [host=127.0.0.1] LOG:  sentencia: ALTER SYSTEM SET log_connections = 'on';
+2026-10-19 15:57:27.403 -03 [23980] [app=psql] [user=postgres@food_store_dev] [host=127.0.0.1] LOG:  sentencia: ALTER SYSTEM SET log_disconnections = 'on';
+2026-10-19 15:57:27.428 -03 [23980] [app=psql] [user=postgres@food_store_dev] [host=127.0.0.1] LOG:  sentencia: ALTER SYSTEM SET log_statement = 'mod';
+2026-10-19 15:57:27.451 -03 [23980] [app=psql] [user=postgres@food_store_dev] [host=127.0.0.1] LOG:  sentencia: ALTER SYSTEM SET log_min_messages = 'notice';
+2026-10-19 15:57:27.470 -03 [23980] [app=psql] [user=postgres@food_store_dev] [host=127.0.0.1] LOG:  sentencia: ALTER SYSTEM SET log_min_error_statement = 'error';
+2026-10-19 15:57:27.493 -03 [23980] [app=psql] [user=postgres@food_store_dev] [host=127.0.0.1] LOG:  sentencia: ALTER SYSTEM SET log_line_prefix = '%m [%p] %q[app=%a] [user=%u@%d] [host=%h] ';
+2026-10-19 15:57:27.519 -03 [23980] [app=psql] [user=postgres@food_store_dev] [host=127.0.0.1] LOG:  sentencia: ALTER ROLE app_web SET log_statement = 'all';
+2026-10-19 15:57:27.771 -03 [25924] [app=[desconocido]] [user=[desconocido]@[desconocido]] [host=127.0.0.1] LOG:  conexión recibida: host=127.0.0.1 port=58044
+2026-10-19 15:57:27.772 -03 [25924] [app=[desconocido]] [user=app_web@food_store_dev] [host=127.0.0.1] LOG:  conexión autenticada: usuario=«app_web» método=trust (C:/Program Files/PostgreSQL/18/data/pg_hba.conf:115)
+2026-10-19 15:57:27.772 -03 [25924] [app=[desconocido]] [user=app_web@food_store_dev] [host=127.0.0.1] LOG:  conexión autorizada: usuario=app_web base_de_datos=food_store_dev nombre_de_aplicación=psql
+2026-10-19 15:57:27.773 -03 [23980] [app=psql] [user=postgres@food_store_dev] [host=127.0.0.1] LOG:  desconexión: duración de sesión: 0:00:00.425 usuario=postgres base=food_store_dev host=127.0.0.1 port=58043
+2026-10-19 15:57:27.773 -03 [25924] [app=psql] [user=app_web@food_store_dev] [host=127.0.0.1] LOG:  sentencia: SET application_name = 'foodstore_auditoria_test';
+2026-10-19 15:57:27.773 -03 [25924] [app=foodstore_auditoria_test] [user=app_web@food_store_dev] [host=127.0.0.1] LOG:  sentencia: BEGIN;
+2026-10-19 15:57:27.773 -03 [25924] [app=foodstore_auditoria_test] [user=app_web@food_store_dev] [host=127.0.0.1] LOG:  sentencia: SELECT
+	    id_producto,
+	    nombre_producto,
+	    precio_actual,
+	    stock
+	FROM public.producto
+	WHERE id_producto IN (1, 2, 3)
+	ORDER BY id_producto;
+2026-10-19 15:57:27.775 -03 [25924] [app=foodstore_auditoria_test] [user=app_web@food_store_dev] [host=127.0.0.1] LOG:  sentencia: WITH nuevo_pedido AS (
+	    INSERT INTO public.pedido (forma_pago, id_cliente)
+	    VALUES ('BILLETERA_DIGITAL', 1)
+	    RETURNING id_pedido
+	)
+	INSERT INTO public.detalle_pedido (id_pedido, id_producto, cantidad, precio_unitario)
+	SELECT
+	    np.id_pedido,
+	    1,
+	    2,
+	    pr.precio_actual
+	FROM nuevo_pedido np
+	CROSS JOIN public.producto pr
+	WHERE pr.id_producto = 1;
+2026-10-19 15:57:27.779 -03 [25924] [app=foodstore_auditoria_test] [user=app_web@food_store_dev] [host=127.0.0.1] LOG:  sentencia: UPDATE public.producto
+	SET stock = stock + 10
+	WHERE id_producto = 1;
+2026-10-19 15:57:27.779 -03 [25924] [app=foodstore_auditoria_test] [user=app_web@food_store_dev] [host=127.0.0.1] LOG:  sentencia: SELECT *
+	FROM public.fn_autenticar('sofia.pereyra@foodstore.com.ar', 'PasswordErroneo_2026!');
+2026-10-19 15:57:27.781 -03 [25924] [app=foodstore_auditoria_test] [user=app_web@food_store_dev] [host=127.0.0.1] WARNING:  AUTH_FAIL: intento de inicio de sesion fallido para email=sofia.pereyra@foodstore.com.ar (invocado por session_user=app_web, current_user=postgres)
+2026-10-19 15:57:27.781 -03 [25924] [app=foodstore_auditoria_test] [user=app_web@food_store_dev] [host=127.0.0.1] CONTEXTO:  función PL/pgSQL fn_autenticar(character varying,text) en la línea 16 en RAISE
+2026-10-19 15:57:27.781 -03 [25924] [app=foodstore_auditoria_test] [user=app_web@food_store_dev] [host=127.0.0.1] LOG:  sentencia: ROLLBACK;
+2026-10-19 15:57:27.805 -03 [25924] [app=foodstore_auditoria_test] [user=app_web@food_store_dev] [host=127.0.0.1] LOG:  desconexión: duración de sesión: 0:00:00.042 usuario=app_web base=food_store_dev host=127.0.0.1 port=58044
+2026-10-19 15:57:27.805 -03 [18044] [app=psql] [user=postgres@food_store_dev] [host=127.0.0.1] LOG:  sentencia: ALTER ROLE app_web RESET log_statement;
+2026-10-19 15:57:27.806 -03 [18044] [app=psql] [user=postgres@food_store_dev] [host=127.0.0.1] LOG:  desconexión: duración de sesión: 0:00:00.012 usuario=postgres base=food_store_dev host=127.0.0.1 port=58045
+2026-10-19 15:57:27.840 -03 [15172] [app=[desconocido]] [user=[desconocido]@[desconocido]] [host=127.0.0.1] LOG:  conexión recibida: host=127.0.0.1 port=58046
+2026-10-19 15:57:27.841 -03 [15172] [app=[desconocido]] [user=intruso_externo@food_store_dev] [host=127.0.0.1] LOG:  conexión autenticada: usuario=«intruso_externo» método=trust (C:/Program Files/PostgreSQL/18/data/pg_hba.conf:115)
+2026-10-19 15:57:27.841 -03 [15172] [app=[desconocido]] [user=intruso_externo@food_store_dev] [host=127.0.0.1] LOG:  conexión autorizada: usuario=intruso_externo base_de_datos=food_store_dev nombre_de_aplicación=psql
+2026-10-19 15:57:27.841 -03 [15172] [app=[desconocido]] [user=intruso_externo@food_store_dev] [host=127.0.0.1] FATAL:  no existe el rol «intruso_externo»
