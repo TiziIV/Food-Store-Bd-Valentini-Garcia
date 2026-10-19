@@ -122,3 +122,8 @@ aceptó, modificó o descartó de cada propuesta de la IA está en el
 ## Unidad 4: TP6 - FNBC y desnormalización
 
 La entrega está en [TP6_FNBC_Desnormalizacion](TP6_FNBC_Desnormalizacion/README.md). Los dos SQL y el informe PDF están en la raíz de TP6; las salidas y capturas en `evidencias/`, y los scripts auxiliares en `herramientas/`.
+
+## Unidad 5: TP7 - Administración y seguridad de Food Store (roles, auditoría, incidentes y protección de datos personales)
+
+La entrega está en [TP7_Seguridad_Roles_Auditoria](TP7_Seguridad_Roles_Auditoria/README.md). Incluye los scripts SQL (`sql/roles.sql`, `sql/auditoria_test.sql`, `sql/simulacro_incidente.sql`, `sql/usuario_anon.sql`), la especificación Kiro (`docs/kiro_roles_spec/requirements.md` y `design.md`), los logs e informes técnicos (`docs/informe_auditoria.md`, `docs/log_auditoria_prueba.txt`, `docs/log_simulacro_anonimizado.txt`, `docs/informe_incidente.md`, `docs/verificacion_equivalencia.md`) y la bitácora consolidada de uso crítico de IA en [`TP7_Seguridad_Roles_Auditoria/BITACORA.md`](TP7_Seguridad_Roles_Auditoria/BITACORA.md).
+
