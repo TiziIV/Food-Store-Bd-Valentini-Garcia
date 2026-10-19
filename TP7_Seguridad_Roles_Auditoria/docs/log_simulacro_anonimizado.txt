@@ -1,0 +1,47 @@
+2026-10-19 16:00:07.434 -03 [12492] [app=[desconocido]] [user=[desconocido]@[desconocido]] [host=198.51.100.47] LOG:  conexión recibida: host=198.51.100.47 port=58196
+2026-10-19 16:00:07.435 -03 [12492] [app=[desconocido]] [user=app_web@food_store_dev] [host=198.51.100.47] LOG:  conexión autenticada: usuario=«app_web» método=scram-sha-256 (pg_hba.conf:115)
+2026-10-19 16:00:07.435 -03 [12492] [app=[desconocido]] [user=app_web@food_store_dev] [host=198.51.100.47] LOG:  conexión autorizada: usuario=app_web base_de_datos=food_store_dev nombre_de_aplicación=psql
+2026-10-19 16:00:07.437 -03 [12492] [app=psql] [user=app_web@food_store_dev] [host=198.51.100.47] LOG:  sentencia: SET application_name = 'foodstore_web_gateway';
+2026-10-19 16:00:07.437 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] LOG:  sentencia: SELECT * FROM public.fn_autenticar('usr_4c5d3f7fac@anon.foodstore.local', '<SECRET_REDACTED_FAIL_01>');
+2026-10-19 16:00:07.440 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] WARNING:  AUTH_FAIL: intento de inicio de sesion fallido para email=usr_4c5d3f7fac@anon.foodstore.local (invocado por session_user=app_web, current_user=postgres)
+2026-10-19 16:00:07.440 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] CONTEXTO:  función PL/pgSQL fn_autenticar(character varying,text) en la línea 16 en RAISE
+2026-10-19 16:00:07.440 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] LOG:  sentencia: SELECT * FROM public.fn_autenticar('usr_4c5d3f7fac@anon.foodstore.local', '<SECRET_REDACTED_FAIL_02>');
+2026-10-19 16:00:07.441 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] WARNING:  AUTH_FAIL: intento de inicio de sesion fallido para email=usr_4c5d3f7fac@anon.foodstore.local (invocado por session_user=app_web, current_user=postgres)
+2026-10-19 16:00:07.441 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] CONTEXTO:  función PL/pgSQL fn_autenticar(character varying,text) en la línea 16 en RAISE
+2026-10-19 16:00:07.441 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] LOG:  sentencia: SELECT * FROM public.fn_autenticar('usr_971373c321@anon.foodstore.local', '<SECRET_REDACTED_FAIL_03>');
+2026-10-19 16:00:07.441 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] WARNING:  AUTH_FAIL: intento de inicio de sesion fallido para email=usr_971373c321@anon.foodstore.local (invocado por session_user=app_web, current_user=postgres)
+2026-10-19 16:00:07.441 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] CONTEXTO:  función PL/pgSQL fn_autenticar(character varying,text) en la línea 16 en RAISE
+2026-10-19 16:00:07.441 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] LOG:  sentencia: SELECT * FROM public.fn_autenticar('usr_971373c321@anon.foodstore.local', '<SECRET_REDACTED_FAIL_04>');
+2026-10-19 16:00:07.441 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] WARNING:  AUTH_FAIL: intento de inicio de sesion fallido para email=usr_971373c321@anon.foodstore.local (invocado por session_user=app_web, current_user=postgres)
+2026-10-19 16:00:07.441 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] CONTEXTO:  función PL/pgSQL fn_autenticar(character varying,text) en la línea 16 en RAISE
+2026-10-19 16:00:07.441 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] LOG:  sentencia: SELECT * FROM public.fn_autenticar('usr_971373c321@anon.foodstore.local', '<SECRET_REDACTED_FAIL_05>');
+2026-10-19 16:00:07.442 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] WARNING:  AUTH_FAIL: intento de inicio de sesion fallido para email=usr_971373c321@anon.foodstore.local (invocado por session_user=app_web, current_user=postgres)
+2026-10-19 16:00:07.442 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] CONTEXTO:  función PL/pgSQL fn_autenticar(character varying,text) en la línea 16 en RAISE
+2026-10-19 16:00:07.442 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] LOG:  sentencia: SELECT * FROM public.fn_autenticar('usr_971373c321@anon.foodstore.local', '<SECRET_REDACTED_OK>');
+2026-10-19 16:00:07.442 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] NOTICE:  AUTH_OK: inicio de sesion exitoso para email=usr_971373c321@anon.foodstore.local (usuario_id=202, rol=soporte, session_user=app_web)
+2026-10-19 16:00:07.442 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] CONTEXTO:  función PL/pgSQL fn_autenticar(character varying,text) en la línea 22 en RAISE
+2026-10-19 16:00:07.442 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] LOG:  sentencia: SELECT * FROM public.usuario;
+2026-10-19 16:00:07.445 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] ERROR:  permiso denegado a la tabla usuario
+2026-10-19 16:00:07.445 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] SENTENCIA:  SELECT * FROM public.usuario;
+2026-10-19 16:00:07.445 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] LOG:  sentencia: SELECT id, nombre, email, rol, fecha_alta
+	FROM public.usuario
+	ORDER BY id;
+2026-10-19 16:00:07.467 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] LOG:  sentencia: SET ROLE admin_datos;
+2026-10-19 16:00:07.467 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] ERROR:  se ha denegado el permiso para definir el rol «admin_datos»
+2026-10-19 16:00:07.467 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] SENTENCIA:  SET ROLE admin_datos;
+2026-10-19 16:00:07.468 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] LOG:  sentencia: GRANT admin_datos TO app_web;
+2026-10-19 16:00:07.468 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] ERROR:  se ha denegado el permiso para otorgar el rol «admin_datos»
+2026-10-19 16:00:07.468 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] DETALLE:  Sólo los roles con la opción ADMIN en el rol «admin_datos» pueden otorgar este rol.
+2026-10-19 16:00:07.468 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] SENTENCIA:  GRANT admin_datos TO app_web;
+2026-10-19 16:00:07.469 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] LOG:  sentencia: GRANT admin_datos TO rol_app_escritura;
+2026-10-19 16:00:07.469 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] ERROR:  se ha denegado el permiso para otorgar el rol «admin_datos»
+2026-10-19 16:00:07.469 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] DETALLE:  Sólo los roles con la opción ADMIN en el rol «admin_datos» pueden otorgar este rol.
+2026-10-19 16:00:07.469 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] SENTENCIA:  GRANT admin_datos TO rol_app_escritura;
+2026-10-19 16:00:07.469 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] LOG:  sentencia: DELETE FROM public.usuario WHERE rol = 'admin';
+2026-10-19 16:00:07.469 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] ERROR:  permiso denegado a la tabla usuario
+2026-10-19 16:00:07.469 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] SENTENCIA:  DELETE FROM public.usuario WHERE rol = 'admin';
+2026-10-19 16:00:07.469 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] LOG:  sentencia: SELECT
+	    session_user AS usuario_sesion,
+	    current_user AS usuario_efectivo,
+	    pg_has_role(current_user, 'admin_datos', 'MEMBER') AS tiene_admin_datos;
+2026-10-19 16:00:07.602 -03 [12492] [app=foodstore_web_gateway] [user=app_web@food_store_dev] [host=198.51.100.47] LOG:  desconexión: duración de sesión: 0:00:00.175 usuario=app_web base=food_store_dev host=198.51.100.47 port=58196
