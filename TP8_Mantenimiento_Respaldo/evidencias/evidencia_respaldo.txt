@@ -1,0 +1,25 @@
+﻿================================================================================
+EVIDENCIA DE RESPALDO AUTOMATIZADO (Parte 2 - backup_foodstore.ps1)
+================================================================================
+Fecha y hora de ejecucion : 2026-11-09 22:17:53.693 -03:00
+Base de datos origen      : foodstore (PostgreSQL 16+)
+Archivo generado          : backups/foodstore_20261109_221751.dump
+Existencia verificada     : True
+Tamano exacto             : 8433690 bytes (8.04 MB)
+Fecha de escritura (UTC)  : 2026-11-10 01:17:53.221 UTC
+Fecha de escritura (Local): 2026-11-09 22:17:53.221
+Hash SHA-256              : 349A7FC778BF1A363274354FD4A959F93B530D91051788E413B428881F49AA0B
+Duracion del respaldo     : 1.95 segundos (1950 ms)
+Codigo de salida pg_dump  : 0 (OK)
+Archivo de log asociado   : logs/backup_20261109.log
+================================================================================
+--- Contenido registrado en logs/backup_20261109.log ---
+[2026-11-09 22:17:51.648] [INFO] ==================================================================
+[2026-11-09 22:17:51.662] [INFO] Iniciando respaldo logico de la base 'foodstore' (formato Custom -Fc)
+[2026-11-09 22:17:51.664] [INFO] Archivo destino: backups/foodstore_20261109_221751.dump
+[2026-11-09 22:17:51.665] [INFO] Comando: pg_dump -h localhost -p 5432 -U postgres -d foodstore -Fc -f backups/foodstore_20261109_221751.dump
+[2026-11-09 22:17:53.687] [INFO] Respaldo completado exitosamente en 1.95 s (1950 ms).
+[2026-11-09 22:17:53.689] [INFO] Tamano verificado: 8433690 bytes (8.04 MB) | SHA256: 349A7FC778BF1A363274354FD4A959F93B530D91051788E413B428881F49AA0B
+[2026-11-09 22:17:53.691] [INFO] Estado final: EXITOSO (ExitCode = 0)
+[2026-11-09 22:17:53.692] [INFO] ==================================================================
+

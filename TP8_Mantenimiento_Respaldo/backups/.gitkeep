@@ -1,0 +1,2 @@
+# Los archivos binarios *.dump generados por backup_foodstore.ps1 se ignoran en .gitignore.
+# La evidencia de su creación, tamaño, hash SHA-256 y restauración se encuentra en ../evidencias/.
