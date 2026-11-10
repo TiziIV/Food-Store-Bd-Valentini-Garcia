@@ -2,10 +2,12 @@
 
 Proyecto integrador de la Tecnicatura Universitaria en Programación
 (UTN), desarrollado a lo largo de cinco trabajos prácticos (TP1 a
-TP5). Esta entrega corresponde a la primera instancia parcial del
-Trabajo Práctico Integrador (TPI): cubre las Unidades 1, 2 y 3 de
+TP5) para la primera instancia parcial y ampliado con las entregas de
+las Unidades 4, 5 y 6 (TP6, TP7 y TP8). Cubre las Unidades 1 a 6 de
 Base de Datos II (integridad/transacciones/concurrencia,
-optimización de consultas, e índices/vistas/objetos programables).
+optimización de consultas, índices/vistas/objetos programables,
+FNBC/desnormalización, administración/seguridad/auditoría, y
+mantenimiento/respaldo/recuperación).
 
 Motor de referencia: **PostgreSQL 16+**. Herramientas de IA usadas a
 lo largo de toda la cursada: **Kiro** (especificación) y **OpenCode**
@@ -25,12 +27,12 @@ proyecto.
 El repositorio está dividido por trabajo práctico. Cada carpeta
 contiene el código y la documentación real de ese TP (no los PDF de
 consigna ni de informe entregados a la cátedra, que quedan fuera del
-repositorio):
+repositorio, salvo cuando la consigna solicita el PDF en la carpeta del TP):
 
 ```
 Food-Store-Bd-Valentini-Garcia/
 ├── README.md                     (este archivo)
-├── Informe_General.md            (informe técnico del parcial: 9 puntos + por unidad)
+├── Informe_General.md            (informe técnico general del proyecto integrador)
 ├── protocolo_seguridad.md        (copia de trabajo, transacción, respaldo — Parte 0 de TP2)
 ├── TP1_FoodStore/                 (Semana 1 — ER, modelo relacional, normalización, DDL)
 │   ├── schema.sql
@@ -51,13 +53,29 @@ Food-Store-Bd-Valentini-Garcia/
 │   ├── queries.sql
 │   ├── duia.md
 │   └── informe_mediciones.md
-└── TP5_Indices_Vistas/             (Semana 5 — índices, vistas, materializadas,
-                                     borrado lógico y procedimientos)
-    ├── data.sql, queries.sql
-    ├── indices.sql, views.sql, materializadas.sql
-    ├── soft_delete.sql
-    ├── procedimientos.sql
-    ├── specs/, duia.md, informe_mediciones.md
+├── TP5_Indices_Vistas/             (Semana 5 — índices, vistas, materializadas,
+│   │                                borrado lógico y procedimientos)
+│   ├── data.sql, queries.sql
+│   ├── indices.sql, views.sql, materializadas.sql
+│   ├── soft_delete.sql
+│   ├── procedimientos.sql
+│   ├── specs/, duia.md, informe_mediciones.md
+│   └── README.md
+├── TP6_FNBC_Desnormalizacion/      (Semana 8 — Unidad 4: FNBC y desnormalización controlada)
+│   ├── tp_fnbc_control_lote.sql, tp_desnormalizacion_top_categorias.sql
+│   ├── informe_fnbc_desnormalizacion.pdf
+│   ├── evidencias/, herramientas/
+│   └── README.md
+├── TP7_Seguridad_Roles_Auditoria/  (Semana 9 — Unidad 5: roles, auditoría, incidentes y PII)
+│   ├── sql/, docs/
+│   ├── BITACORA.md
+│   └── README.md
+└── TP8_Mantenimiento_Respaldo/     (Semana 10 — Unidad 6: mantenimiento, respaldo y recuperación)
+    ├── SPEC_U6.md
+    ├── backup_foodstore.ps1, restore_test.ps1
+    ├── health_check.sql, maintenance.sql
+    ├── informe_u6.md, informe_u6.pdf
+    ├── evidencias/, logs/, backups/
     └── README.md
 ```
 
@@ -127,3 +145,6 @@ La entrega está en [TP6_FNBC_Desnormalizacion](TP6_FNBC_Desnormalizacion/README
 
 La entrega está en [TP7_Seguridad_Roles_Auditoria](TP7_Seguridad_Roles_Auditoria/README.md). Incluye los scripts SQL (`sql/roles.sql`, `sql/auditoria_test.sql`, `sql/simulacro_incidente.sql`, `sql/usuario_anon.sql`), la especificación Kiro (`docs/kiro_roles_spec/requirements.md` y `design.md`), los logs e informes técnicos (`docs/informe_auditoria.md`, `docs/log_auditoria_prueba.txt`, `docs/log_simulacro_anonimizado.txt`, `docs/informe_incidente.md`, `docs/verificacion_equivalencia.md`) y la bitácora consolidada de uso crítico de IA en [`TP7_Seguridad_Roles_Auditoria/BITACORA.md`](TP7_Seguridad_Roles_Auditoria/BITACORA.md).
 
+## Unidad 6: TP8 - Mantenimiento, respaldo y recuperación de Food Store
+
+La entrega está en [TP8_Mantenimiento_Respaldo](TP8_Mantenimiento_Respaldo/README.md). Incluye la especificación y plan de mantenimiento ([`SPEC_U6.md`](TP8_Mantenimiento_Respaldo/SPEC_U6.md)), el script PowerShell de respaldo lógico automatizable en formato custom ([`backup_foodstore.ps1`](TP8_Mantenimiento_Respaldo/backup_foodstore.ps1)), las consultas de monitoreo diario ([`health_check.sql`](TP8_Mantenimiento_Respaldo/health_check.sql)) y mantenimiento preventivo justificado con `VACUUM (VERBOSE, ANALYZE)` ([`maintenance.sql`](TP8_Mantenimiento_Respaldo/maintenance.sql)), el simulacro automatizado de recuperación ante desastres contra reloj sobre `foodstore_restore_test` con medición de RPO y RTO ([`restore_test.ps1`](TP8_Mantenimiento_Respaldo/restore_test.ps1)), las evidencias de ejecución en `evidencias/` y `logs/`, y el informe post-incidente en [`informe_u6.md`](TP8_Mantenimiento_Respaldo/informe_u6.md) e [`informe_u6.pdf`](TP8_Mantenimiento_Respaldo/informe_u6.pdf).

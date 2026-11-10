@@ -5,7 +5,8 @@ Integrantes: Valentini, Tiziano — García, Juan Martín
 
 Este informe resume lo actuado en las Unidades 1, 2 y 3 (TP1 a TP5)
 para la primera entrega parcial del Trabajo Práctico Integrador, tal
-como lo pide la consigna de esa entrega. El detalle completo de cada
+como lo pide la consigna de esa entrega, e incorpora el seguimiento de
+las Unidades 4, 5 y 6 (TP6, TP7 y TP8). El detalle completo de cada
 trabajo práctico (scripts, mediciones y DUIA) vive en su propia
 carpeta; este documento es el resumen transversal.
 
@@ -56,6 +57,43 @@ carpeta; este documento es el resumen transversal.
   para permitir `REFRESH CONCURRENTLY`, el borrado lógico extendido
   a `Cliente`, `Pedido` y `Detalle_Pedido` (`soft_delete.sql`), y
   dos procedimientos invocados con `CALL` (`procedimientos.sql`).
+
+### Unidad 4 — Forma Normal de Boyce-Codd (FNBC) y desnormalización controlada (TP6)
+
+- **TP6** ([`TP6_FNBC_Desnormalizacion/`](TP6_FNBC_Desnormalizacion/)):
+  resolución de anomalías de actualización por violación de FNBC en
+  `control_lote_almacen` mediante descomposición sin pérdida en tres
+  tablas en FNBC (`deposito`, `lote`, `responsable_deposito`,
+  `asignacion_control_lote`), y desnormalización controlada de
+  `detalle_pedido` agregando `categoria_nombre` sincronizada por
+  triggers PL/pgSQL para acelerar el reporte de top categorías del día.
+
+### Unidad 5 — Administración, seguridad, auditoría y protección de datos personales (TP7)
+
+- **TP7** ([`TP7_Seguridad_Roles_Auditoria/`](TP7_Seguridad_Roles_Auditoria/)):
+  diseño e implementación de esquema RBAC de mínimo privilegio
+  (`rol_lectura`, `rol_operaciones`, `rol_auditoria`, `rol_admin_db`)
+  con funciones `SECURITY DEFINER`, activación de auditoría nativa en
+  PostgreSQL (`ALTER SYSTEM`), simulacro de incidente de seguridad con
+  anonimización previa del log antes de su análisis asistido por IA, y
+  construcción determinista de `usuario_anon` verificando equivalencia
+  agregada (`EXCEPT` = 0 filas).
+
+### Unidad 6 — Mantenimiento, respaldo y recuperación ante desastres (TP8)
+
+- **TP8** ([`TP8_Mantenimiento_Respaldo/`](TP8_Mantenimiento_Respaldo/)):
+  especificación del plan de mantenimiento y recuperación (`SPEC_U6.md`),
+  automatización en PowerShell del respaldo diario en formato custom
+  (`backup_foodstore.ps1` con `pg_dump -Fc`, sin contraseñas expuestas),
+  monitoreo diario de tamaño, conexiones, tuplas y actividad
+  (`health_check.sql`), mantenimiento preventivo justificado con
+  `VACUUM (VERBOSE, ANALYZE, INDEX_CLEANUP ON)` sobre `pedido`,
+  `detalle_pedido` y `producto` evitando `VACUUM FULL`
+  (`maintenance.sql`), simulacro de desastre contra reloj sobre la base
+  descartable `foodstore_restore_test` (`restore_test.ps1`, logrando un
+  **RTO de 5,183 s** y validación del 100% de las tablas y restricciones),
+  e informe post-incidente ([`informe_u6.md`](TP8_Mantenimiento_Respaldo/informe_u6.md)
+  e [`informe_u6.pdf`](TP8_Mantenimiento_Respaldo/informe_u6.pdf)).
 
 ## 2. Cómo se probó cada elemento
 
