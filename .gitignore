@@ -13,10 +13,12 @@ dump.sql
 
 # Logs
 *.log
+!TP8_Mantenimiento_Respaldo/logs/*.log
 
 # Backups
 *.backup
 *.bkp
+*.dump
 
 # Archivos temporales
 *.tmp
