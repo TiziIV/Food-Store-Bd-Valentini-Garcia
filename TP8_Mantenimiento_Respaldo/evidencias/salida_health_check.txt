@@ -1,0 +1,49 @@
+==========================================================================
+CONTROL 1: Tamaño total en disco de la base de datos foodstore
+==========================================================================
+ tamano 
+--------
+ 179 MB
+(1 fila)
+
+
+==========================================================================
+CONTROL 2: Actividad de conexiones, transacciones confirmadas y rollbacks
+==========================================================================
+ numbackends | xact_commit | xact_rollback 
+-------------+-------------+---------------
+           1 |         172 |             2
+(1 fila)
+
+
+==========================================================================
+CONTROL 3: Estado de tablas (tuplas vivas/muertas, autovacuum y autoanalyze)
+==========================================================================
+           relname            | n_live_tup | n_dead_tup | last_autovacuum | last_autoanalyze 
+------------------------------+------------+------------+-----------------+------------------
+ detalle_pedido               |     400011 |      23974 |                 | 
+ pedido                       |     200003 |       7719 |                 | 
+ producto                     |      50005 |       3450 |                 | 
+ responsable_deposito         |          2 |          3 |                 | 
+ usuario                      |        242 |          2 |                 | 
+ categoria                    |         12 |          1 |                 | 
+ control_lote_almacen         |          3 |          1 |                 | 
+ cliente                      |      20003 |          0 |                 | 
+ deposito                     |          3 |          0 |                 | 
+ lote                         |          3 |          0 |                 | 
+ mv_facturacion_categoria_mes |        300 |          0 |                 | 
+ asignacion_control_lote      |          3 |          0 |                 | 
+ usuario_anon                 |        242 |          0 |                 | 
+(13 filas)
+
+
+==========================================================================
+CONTROL 4: Consultas activas en ejecución (distintas de idle) y su duración
+==========================================================================
+  pid  | state  | duracion |                           query                           
+-------+--------+----------+-----------------------------------------------------------
+ 10920 | active | 00:00:00 | SELECT pid, state, now() - query_start AS duracion, query+
+       |        |          | FROM pg_stat_activity                                    +
+       |        |          | WHERE datname = 'foodstore' AND state <> 'idle';
+(1 fila)
+

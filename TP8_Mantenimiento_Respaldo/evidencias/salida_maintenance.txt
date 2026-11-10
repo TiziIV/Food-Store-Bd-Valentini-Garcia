@@ -1,0 +1,128 @@
+==========================================================================
+1. DIAGNOSTICO PREVIO: Proporcion de tuplas muertas y estado de estadisticas
+==========================================================================
+            tabla             | tuplas_vivas | tuplas_muertas | pct_tuplas_muertas | mod_desde_analyze | umbral_autovacuum_20pct |          last_vacuum          | last_autovacuum |         last_analyze          | last_autoanalyze 
+------------------------------+--------------+----------------+--------------------+-------------------+-------------------------+-------------------------------+-----------------+-------------------------------+------------------
+ detalle_pedido               |       400011 |          23974 |               5.65 |             12005 |                   80052 | 2026-11-09 22:15:14.714503-03 |                 | 2026-11-09 22:15:14.809805-03 | 
+ pedido                       |       200003 |           7719 |               3.72 |              8000 |                   40051 | 2026-11-09 22:15:14.626615-03 |                 | 2026-11-09 22:15:14.679119-03 | 
+ producto                     |        50005 |           3450 |               6.45 |              3500 |                   10051 | 2026-11-09 22:15:14.840787-03 |                 | 2026-11-09 22:15:15.096797-03 | 
+ responsable_deposito         |            2 |              3 |              60.00 |                 0 |                      50 |                               |                 | 2026-11-09 22:10:51.371919-03 | 
+ usuario                      |          242 |              2 |               0.82 |                 0 |                      98 |                               |                 | 2026-11-09 22:10:50.954837-03 | 
+ categoria                    |           12 |              1 |               7.69 |                 0 |                      52 |                               |                 | 2026-11-09 22:10:50.955297-03 | 
+ control_lote_almacen         |            3 |              1 |              25.00 |                 0 |                      51 |                               |                 | 2026-11-09 22:10:51.284001-03 | 
+ cliente                      |        20003 |              0 |               0.00 |                 0 |                    4051 |                               |                 | 2026-11-09 22:10:50.951576-03 | 
+ mv_facturacion_categoria_mes |          300 |              0 |               0.00 |                 0 |                     110 |                               |                 | 2026-11-09 22:10:51.373025-03 | 
+ usuario_anon                 |          242 |              0 |               0.00 |                 0 |                      98 |                               |                 | 2026-11-09 22:10:51.375549-03 | 
+ deposito                     |            3 |              0 |               0.00 |                 0 |                      51 |                               |                 | 2026-11-09 22:10:51.283579-03 | 
+ asignacion_control_lote      |            3 |              0 |               0.00 |                 0 |                      51 |                               |                 | 2026-11-09 22:10:51.28453-03  | 
+ lote                         |            3 |              0 |               0.00 |                 0 |                      51 |                               |                 | 2026-11-09 22:10:51.211115-03 | 
+(13 filas)
+
+
+==========================================================================
+2. ACCION DE MANTENIMIENTO SEGURO: VACUUM (VERBOSE, ANALYZE) en tablas criticas
+==========================================================================
+psql:TP8_Mantenimiento_Respaldo/maintenance.sql:67: INFO:  haciendo vacuum a «foodstore.public.pedido»
+ 
+psql:TP8_Mantenimiento_Respaldo/maintenance.sql:67: INFO:  se lanzaron 2 procesos asistentes para «vacuum» índices 
+(planeados: 2)
+psql:TP8_Mantenimiento_Respaldo/maintenance.sql:67: INFO:  se terminó el vacuum de «foodstore.public.pedido»: 
+recorridos de índice: 1
+páginas: 0 eliminadas, 1579 quedan, 1500 recorridas (95.00% del total), 0 recorridas ávidamente
+tuplas: 0 eliminadas, 200632 permanecen, 0 están muertas pero aún no se pueden quitar
+punto de corte de eliminación: 1532, que era 0 XIDs de antiguo cuando la operación terminó
+congelado: 0 páginas de la tabla (0.00% del total) tuvieron 0 tuplas congeladas
+mapa de visibilidad: 1500 páginas definidas “all-visible”, 8 páginas definidas “all-frozen” (0 eran “all-visible”)
+recorrido de índice necesario: en 1422 páginas de la tabla (90.06% del total) se eliminaron 7719 identificadores de 
+elementos muertos
+índice «pedido_pkey»: páginas: 573 en total, 0 recientemente eliminadas, 0 eliminadas hasta ahora, 0 reusables
+índice «idx_pedido_fecha_cliente»: páginas: 818 en total, 0 recientemente eliminadas, 0 eliminadas hasta ahora, 0 
+reusables
+índice «idx_pedido_cliente_fecha_desc»: páginas: 773 en total, 0 recientemente eliminadas, 0 eliminadas hasta ahora, 0 
+reusables
+índice «idx_pedido_vigente_cliente_fecha»: páginas: 773 en total, 0 recientemente eliminadas, 0 eliminadas hasta 
+ahora, 0 reusables
+tasa lectura promedio: 81.897 MB/s, tasa escritura promedio: 1.229 MB/s
+uso de búfers: 6932 aciertos, 533 fallos, 8 ensuciados
+uso de WAL: 5314 registros, 2 imágenes de página completa, 386944 bytes, 0 búfers llenos
+uso de sistema: CPU: usuario: 0.03 s, sistema: 0.01 s, transcurrido: 0.05 s
+psql:TP8_Mantenimiento_Respaldo/maintenance.sql:67: INFO:  analizando «public.pedido»
+psql:TP8_Mantenimiento_Respaldo/maintenance.sql:67: INFO:  «pedido»: se procesaron 1579 de 1579 páginas, que contenían 
+200003 filas vigentes y 0 filas no vigentes; 30000 filas en la muestra, 200003 total de filas estimadas
+psql:TP8_Mantenimiento_Respaldo/maintenance.sql:67: INFO:  finished analyzing table "foodstore.public.pedido"
+tasa lectura promedio: 0.156 MB/s, tasa escritura promedio: 0.000 MB/s
+uso de búfers: 1942 aciertos, 1 fallos, 0 ensuciados
+uso de WAL: 8 registros, 0 imágenes de página completa, 3941 bytes, 0 búfers llenos
+uso de sistema: CPU: usuario: 0.04 s, sistema: 0.01 s, transcurrido: 0.04 s
+VACUUM
+psql:TP8_Mantenimiento_Respaldo/maintenance.sql:68: INFO:  haciendo vacuum a «foodstore.public.detalle_pedido»
+psql:TP8_Mantenimiento_Respaldo/maintenance.sql:68: INFO:  se lanzaron 2 procesos asistentes para «vacuum» índices 
+(planeados: 2)
+psql:TP8_Mantenimiento_Respaldo/maintenance.sql:68: INFO:  se terminó el vacuum de «foodstore.public.detalle_pedido»: 
+recorridos de índice: 1
+páginas: 0 eliminadas, 6513 quedan, 323 recorridas (4.96% del total), 0 recorridas ávidamente
+tuplas: 29 eliminadas, 392312 permanecen, 0 están muertas pero aún no se pueden quitar
+punto de corte de eliminación: 1533, que era 0 XIDs de antiguo cuando la operación terminó
+congelado: 0 páginas de la tabla (0.00% del total) tuvieron 0 tuplas congeladas
+mapa de visibilidad: 322 páginas definidas “all-visible”, 202 páginas definidas “all-frozen” (0 eran “all-visible”)
+recorrido de índice necesario: en 215 páginas de la tabla (3.30% del total) se eliminaron 23945 identificadores de 
+elementos muertos
+índice «pk_detalle_pedido»: páginas: 3090 en total, 0 recientemente eliminadas, 0 eliminadas hasta ahora, 0 reusables
+índice «idx_detalle_pedido_precio»: páginas: 2213 en total, 0 recientemente eliminadas, 0 eliminadas hasta ahora, 0 
+reusables
+índice «idx_detalle_pedido_prod_covering»: páginas: 3962 en total, 0 recientemente eliminadas, 0 eliminadas hasta 
+ahora, 0 reusables
+tasa lectura promedio: 901.460 MB/s, tasa escritura promedio: 37.281 MB/s
+uso de búfers: 4191 aciertos, 6045 fallos, 250 ensuciados
+uso de WAL: 3774 registros, 111 imágenes de página completa, 393894 bytes, 0 búfers llenos
+uso de sistema: CPU: usuario: 0.03 s, sistema: 0.00 s, transcurrido: 0.05 s
+psql:TP8_Mantenimiento_Respaldo/maintenance.sql:68: INFO:  analizando «public.detalle_pedido»
+psql:TP8_Mantenimiento_Respaldo/maintenance.sql:68: INFO:  «detalle_pedido»: se procesaron 6513 de 6513 páginas, que 
+contenían 400011 filas vigentes y 0 filas no vigentes; 30000 filas en la muestra, 400011 total de filas estimadas
+psql:TP8_Mantenimiento_Respaldo/maintenance.sql:68: INFO:  finished analyzing table "foodstore.public.detalle_pedido"
+tasa lectura promedio: 543.803 MB/s, tasa escritura promedio: 0.176 MB/s
+uso de búfers: 506 aciertos, 6195 fallos, 2 ensuciados
+uso de WAL: 11 registros, 1 imágenes de página completa, 6882 bytes, 0 búfers llenos
+uso de sistema: CPU: usuario: 0.07 s, sistema: 0.00 s, transcurrido: 0.08 s
+VACUUM
+psql:TP8_Mantenimiento_Respaldo/maintenance.sql:69: INFO:  haciendo vacuum a «foodstore.public.producto»
+psql:TP8_Mantenimiento_Respaldo/maintenance.sql:69: INFO:  se lanzaron 2 procesos asistentes para «vacuum» índices 
+(planeados: 2)
+psql:TP8_Mantenimiento_Respaldo/maintenance.sql:69: INFO:  se terminó el vacuum de «foodstore.public.producto»: 
+recorridos de índice: 1
+páginas: 0 eliminadas, 552 quedan, 73 recorridas (13.22% del total), 0 recorridas ávidamente
+tuplas: 0 eliminadas, 46941 permanecen, 0 están muertas pero aún no se pueden quitar
+punto de corte de eliminación: 1534, que era 0 XIDs de antiguo cuando la operación terminó
+congelado: 0 páginas de la tabla (0.00% del total) tuvieron 0 tuplas congeladas
+mapa de visibilidad: 73 páginas definidas “all-visible”, 35 páginas definidas “all-frozen” (0 eran “all-visible”)
+recorrido de índice necesario: en 37 páginas de la tabla (6.70% del total) se eliminaron 3450 identificadores de 
+elementos muertos
+índice «producto_pkey»: páginas: 149 en total, 0 recientemente eliminadas, 0 eliminadas hasta ahora, 0 reusables
+índice «idx_producto_activo_categoria»: páginas: 199 en total, 0 recientemente eliminadas, 0 eliminadas hasta ahora, 0 
+reusables
+índice «idx_producto_cat_precio_activo»: páginas: 186 en total, 0 recientemente eliminadas, 0 eliminadas hasta ahora, 
+0 reusables
+tasa lectura promedio: 75.446 MB/s, tasa escritura promedio: 0.501 MB/s
+uso de búfers: 501 aciertos, 301 fallos, 2 ensuciados
+uso de WAL: 343 registros, 3 imágenes de página completa, 79531 bytes, 0 búfers llenos
+uso de sistema: CPU: usuario: 0.00 s, sistema: 0.00 s, transcurrido: 0.03 s
+psql:TP8_Mantenimiento_Respaldo/maintenance.sql:69: INFO:  analizando «public.producto»
+psql:TP8_Mantenimiento_Respaldo/maintenance.sql:69: INFO:  «producto»: se procesaron 552 de 552 páginas, que contenían 
+50005 filas vigentes y 0 filas no vigentes; 30000 filas en la muestra, 50005 total de filas estimadas
+psql:TP8_Mantenimiento_Respaldo/maintenance.sql:69: INFO:  finished analyzing table "foodstore.public.producto"
+tasa lectura promedio: 8.609 MB/s, tasa escritura promedio: 0.153 MB/s
+uso de búfers: 377 aciertos, 281 fallos, 5 ensuciados
+uso de WAL: 18 registros, 4 imágenes de página completa, 25727 bytes, 0 búfers llenos
+uso de sistema: CPU: usuario: 0.25 s, sistema: 0.00 s, transcurrido: 0.25 s
+VACUUM
+
+==========================================================================
+3. VERIFICACION POST-MANTENIMIENTO: Confirmacion de limpieza y estadisticas
+==========================================================================
+     tabla      | tuplas_vivas | tuplas_muertas | pct_tuplas_muertas | mod_desde_analyze |          last_vacuum          |         last_analyze          
+----------------+--------------+----------------+--------------------+-------------------+-------------------------------+-------------------------------
+ detalle_pedido |       400011 |              0 |               0.00 |                 0 | 2026-11-09 22:17:54.120721-03 | 2026-11-09 22:17:54.209458-03
+ pedido         |       200003 |              0 |               0.00 |                 0 | 2026-11-09 22:17:54.016349-03 | 2026-11-09 22:17:54.066243-03
+ producto       |        50005 |              0 |               0.00 |                 0 | 2026-11-09 22:17:54.241701-03 | 2026-11-09 22:17:54.49632-03
+(3 filas)
+
