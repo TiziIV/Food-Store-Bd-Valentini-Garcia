@@ -1,0 +1,83 @@
+﻿================================================================================
+REPORTE DE SIMULACRO DE DESASTRE CONTRA RELOJ (Parte 4 - restore_test.ps1)
+================================================================================
+Proyecto             : Food Store (Base de Datos II - Unidad 6)
+Motor de Base Datos  : PostgreSQL 16+ (instancia local localhost:5432)
+Base Principal       : foodstore (INTACTA - No tocada durante el simulacro)
+Base de Simulacro    : foodstore_restore_test (Creada y validada desde cero)
+Fecha del Simulacro  : 2026-11-09 22:17:54.802 -03:00
+
+--------------------------------------------------------------------------------
+1. METRICA RPO (Recovery Point Objective - Antiguedad del Respaldo)
+--------------------------------------------------------------------------------
+Archivo utilizado    : foodstore_20261109_221751.dump
+Ruta relativa        : backups/foodstore_20261109_221751.dump
+Tamano del respaldo  : 8433690 bytes (8.04 MB)
+Fecha del respaldo   : 2026-11-09 22:17:53.221
+Inicio recuperacion  : 2026-11-09 22:17:54.802
+RPO Previsto (Meta)  : <= 24 horas (esquema de respaldo diario)
+RPO Observado        : 00h:00m:01s (1,58 segundos / 0,03 minutos)
+
+--------------------------------------------------------------------------------
+2. METRICA RTO (Recovery Time Objective - Tiempo Total de Recuperacion)
+--------------------------------------------------------------------------------
+RTO Previsto (Meta)  : <= 300 segundos (5 minutos para laboratorio local)
+Desglose cronometrado (System.Diagnostics.Stopwatch):
+  a) Creacion de base (createdb foodstore_restore_test) : 0.25 s (250 ms)
+  b) Restauracion (pg_restore --no-owner --no-privileges): 4.214 s (4214 ms)
+  c) Ejecucion de las 3 validaciones minimas en SQL     : 0.718 s (718 ms)
+  ------------------------------------------------------------------------------
+  RTO TOTAL OBSERVADO : 5.183 segundos (5182 ms)
+
+--------------------------------------------------------------------------------
+3. COMPARACION DE CONTEO DE FILAS (foodstore vs. foodstore_restore_test)
+--------------------------------------------------------------------------------
+Tabla              |      foodstore | foodstore_restore_test | Estado    
+--------------------------------------------------------------------------
+categoria          |             12 |                     12 | OK (100%) 
+cliente            |          20003 |                  20003 | OK (100%) 
+producto           |          50005 |                  50005 | OK (100%) 
+pedido             |         200003 |                 200003 | OK (100%) 
+detalle_pedido     |         400011 |                 400011 | OK (100%) 
+
+Salida directa de la Validacion 1 en foodstore_restore_test:
+     tabla      | filas  
+----------------+--------
+ categoria      |     12
+ cliente        |  20003
+ producto       |  50005
+ pedido         | 200003
+ detalle_pedido | 400011
+(5 filas)
+
+
+--------------------------------------------------------------------------------
+4. CONTROLES DE INTEGRIDAD Y RESTRICCIONES LOGICAS
+--------------------------------------------------------------------------------
+Nota tecnica: En el esquema real del proyecto (TP1_FoodStore/schema.sql), la
+columna de precio en la tabla 'producto' es 'precio_actual' (adaptado del
+nombre generico 'precio' del enunciado).
+
+Control A - Productos invalidos (precio_actual < 0 OR stock < 0):
+  Valor esperado : 0
+  Valor obtenido : 0
+ productos_invalidos 
+---------------------
+                   0
+(1 fila)
+
+
+Control B - Detalles de pedido invalidos (cantidad <= 0 OR precio_unitario < 0):
+  Valor esperado : 0
+  Valor obtenido : 0
+ detalles_invalidos 
+--------------------
+                  0
+(1 fila)
+
+
+--------------------------------------------------------------------------------
+5. DICTAMEN FINAL DEL SIMULACRO
+--------------------------------------------------------------------------------
+Estado : APROBADO (Restauracion e integridad verificadas al 100%)
+================================================================================
