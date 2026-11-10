@@ -2,8 +2,8 @@
 -- TRABAJO PRÁCTICO · UNIDAD 7: NoSQL Y NUEVAS FORMAS DE ALMACENAMIENTO
 -- Caso: Food Store - Consultas Relacionales y Validación Cruzada con MongoDB
 -- Integrantes: Tiziano Valentini y Juan Martin Garcia
--- Repositorio: Trabajos-Practicos-BD-Valentini-Garcia
--- Archivo: TP8_NoSQL_MongoDB/consultas_postgresql.sql
+-- Repositorio: Food-Store-Bd-Valentini-Garcia (rama: trabajos-practicos-nosql)
+-- Archivo: TP7_NoSQL_MongoDB/consultas_postgresql.sql
 -- ============================================================================
 --
 -- Este script contiene:
@@ -12,6 +12,9 @@
 --  3. Consulta equivalente a Consigna 4 (b): filtro por estado ('ENTREGADO').
 --  4. Consulta equivalente a Consigna 4 (c): pedidos que contienen id_producto = 3.
 --  5. Consulta complementaria a Consigna 4 (d): pedidos con total > $15.000,00.
+--  6. Consultas de laboratorio para el contraste crítico de IA (Consigna 7):
+--     - EXPLAIN ANALYZE de reconstrucción de pedido completo (4 JOINs).
+--     - Agregación analítica por categoría equivalente al pipeline $unwind + $group.
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
@@ -150,3 +153,42 @@ WHERE p.id_pedido BETWEEN 1 AND 6
 GROUP BY p.id_pedido, p.estado, c.nombre
 HAVING SUM(dp.cantidad * dp.precio_unitario) > 15000.00
 ORDER BY total_pedido DESC;
+
+-- ----------------------------------------------------------------------------
+-- 6. Consultas de Laboratorio para el Contraste Crítico de IA (Consigna 7)
+-- ----------------------------------------------------------------------------
+-- 6.a Plan de ejecución (EXPLAIN ANALYZE) para reconstruir el Pedido 1 completo
+-- (requiere 4 JOINs entre Pedido, Cliente, Detalle_Pedido, Producto y Categoria).
+
+EXPLAIN ANALYZE
+SELECT 
+    p.id_pedido, p.fecha_hora, p.forma_pago, p.estado,
+    c.id_cliente, c.nombre, c.correo,
+    pr.id_producto, pr.nombre_producto, cat.nombre_categoria,
+    dp.cantidad, dp.precio_unitario,
+    round((dp.cantidad * dp.precio_unitario)::numeric, 2) AS subtotal
+FROM Pedido p
+JOIN Cliente c ON p.id_cliente = c.id_cliente
+JOIN Detalle_Pedido dp ON p.id_pedido = dp.id_pedido
+JOIN Producto pr ON dp.id_producto = pr.id_producto
+JOIN Categoria cat ON pr.id_categoria = cat.id_categoria
+WHERE p.id_pedido = 1;
+
+-- 6.b Agregación por categoría en pedidos ENTREGADOS (1..6), equivalente
+-- al pipeline $match + $unwind + $group + $sort ejecutado en MongoDB.
+
+SELECT 
+    cat.nombre_categoria AS categoria,
+    COUNT(*) AS cantidad_lineas,
+    SUM(dp.cantidad) AS unidades_vendidas,
+    round(SUM(dp.cantidad * dp.precio_unitario)::numeric, 2) AS facturacion_categoria
+FROM Pedido p
+JOIN Detalle_Pedido dp ON p.id_pedido = dp.id_pedido
+JOIN Producto pr ON dp.id_producto = pr.id_producto
+JOIN Categoria cat ON pr.id_categoria = cat.id_categoria
+WHERE p.estado = 'ENTREGADO'
+  AND p.eliminado = FALSE
+  AND p.id_pedido BETWEEN 1 AND 6
+GROUP BY cat.nombre_categoria
+ORDER BY facturacion_categoria DESC;
+
