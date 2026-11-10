@@ -70,12 +70,22 @@ Food-Store-Bd-Valentini-Garcia/
 │   ├── sql/, docs/
 │   ├── BITACORA.md
 │   └── README.md
-└── TP8_Mantenimiento_Respaldo/     (Semana 10 — Unidad 6: mantenimiento, respaldo y recuperación)
-    ├── SPEC_U6.md
-    ├── backup_foodstore.ps1, restore_test.ps1
-    ├── health_check.sql, maintenance.sql
-    ├── informe_u6.md, informe_u6.pdf
-    ├── evidencias/, logs/, backups/
+├── TP8_Mantenimiento_Respaldo/     (Semana 10 — Unidad 6: mantenimiento, respaldo y recuperación)
+│   ├── SPEC_U6.md
+│   ├── backup_foodstore.ps1, restore_test.ps1
+│   ├── health_check.sql, maintenance.sql
+│   ├── informe_u6.md, informe_u6.pdf
+│   ├── evidencias/, logs/, backups/
+│   └── README.md
+├── TP7_NoSQL_MongoDB/              (Semana 11 — Unidad 7: NoSQL y modelo documental en MongoDB)
+│   ├── consultas_mongodb.js
+│   ├── consultas_postgresql.sql
+│   ├── informe_nosql_mongodb.md, informe_nosql_mongodb.pdf
+│   ├── duia.md
+│   └── README.md
+└── TP8_Movil_SQLite_Cierre/        (Semanas 12-13 — Unidad 8: base móvil SQLite y cierre de capa de datos)
+    ├── movil/ (schema_sqlite.sql, pruebas_sqlite.sql, semaforo.sql, simulador.py, foodstore_movil.db, etc.)
+    ├── docs/ (informe.md, informe.pdf, bitacora_ia.md, DUIA.md, kiro/)
     └── README.md
 ```
 
@@ -148,3 +158,12 @@ La entrega está en [TP7_Seguridad_Roles_Auditoria](TP7_Seguridad_Roles_Auditori
 ## Unidad 6: TP8 - Mantenimiento, respaldo y recuperación de Food Store
 
 La entrega está en [TP8_Mantenimiento_Respaldo](TP8_Mantenimiento_Respaldo/README.md). Incluye la especificación y plan de mantenimiento ([`SPEC_U6.md`](TP8_Mantenimiento_Respaldo/SPEC_U6.md)), el script PowerShell de respaldo lógico automatizable en formato custom ([`backup_foodstore.ps1`](TP8_Mantenimiento_Respaldo/backup_foodstore.ps1)), las consultas de monitoreo diario ([`health_check.sql`](TP8_Mantenimiento_Respaldo/health_check.sql)) y mantenimiento preventivo justificado con `VACUUM (VERBOSE, ANALYZE)` ([`maintenance.sql`](TP8_Mantenimiento_Respaldo/maintenance.sql)), el simulacro automatizado de recuperación ante desastres contra reloj sobre `foodstore_restore_test` con medición de RPO y RTO ([`restore_test.ps1`](TP8_Mantenimiento_Respaldo/restore_test.ps1)), las evidencias de ejecución en `evidencias/` y `logs/`, y el informe post-incidente en [`informe_u6.md`](TP8_Mantenimiento_Respaldo/informe_u6.md) e [`informe_u6.pdf`](TP8_Mantenimiento_Respaldo/informe_u6.pdf).
+
+## Unidad 7: TP7 NoSQL - Modelado Documental en MongoDB y Validación Cruzada
+
+La entrega está en [TP7_NoSQL_MongoDB](TP7_NoSQL_MongoDB/README.md). Cubre el modelado documental desnormalizado en MongoDB (`food_store_nosql.pedidos`) con validador formal `$jsonSchema`, importes exactos en `Decimal128` (`NumberDecimal`), migración de 6 pedidos reales desde PostgreSQL, consultas en `mongosh` y `psql`, tabla de verificación cruzada y bitácora/lectura crítica de IA con evidencias de laboratorio ([`informe_nosql_mongodb.md`](TP7_NoSQL_MongoDB/informe_nosql_mongodb.md), [`informe_nosql_mongodb.pdf`](TP7_NoSQL_MongoDB/informe_nosql_mongodb.pdf) y [`duia.md`](TP7_NoSQL_MongoDB/duia.md)).
+
+## Unidad 8: TP8 Móvil - La Base de la Tablet (SQLite) y Cierre de la Capa de Datos
+
+La entrega está en [TP8_Movil_SQLite_Cierre](TP8_Movil_SQLite_Cierre/README.md). Cubre la sincronización offline-first asimétrica (*"El móvil propone, el servidor dispone"*), el esquema SQLite 3.37+ con `STRICT` y `PRAGMA foreign_keys = ON` ([`schema_sqlite.sql`](TP8_Movil_SQLite_Cierre/movil/schema_sqlite.sql)), las pruebas transaccionales ([`pruebas_sqlite.sql`](TP8_Movil_SQLite_Cierre/movil/pruebas_sqlite.sql)), el motor del semáforo de resolución ([`semaforo.sql`](TP8_Movil_SQLite_Cierre/movil/semaforo.sql) y [`simulador.py`](TP8_Movil_SQLite_Cierre/movil/simulador.py)), la especificación EARS en Kiro (`docs/kiro/`), la bitácora de uso de IA ([`bitacora_ia.md`](TP8_Movil_SQLite_Cierre/docs/bitacora_ia.md), [`DUIA.md`](TP8_Movil_SQLite_Cierre/docs/DUIA.md)) y el informe integrador de cierre de los 3 motores ([`informe.md`](TP8_Movil_SQLite_Cierre/docs/informe.md) e [`informe.pdf`](TP8_Movil_SQLite_Cierre/docs/informe.pdf)).
+
