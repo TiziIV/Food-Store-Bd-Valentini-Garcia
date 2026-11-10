@@ -42,7 +42,10 @@ Siguiendo el [`protocolo_seguridad.md`](../protocolo_seguridad.md) del repositor
 createdb -U postgres -T food_store_tp6 food_store_dev
 
 # 2. Parte A — Roles, funciones de seguridad y mínimo privilegio
-psql -X -v ON_ERROR_STOP=1 -U postgres -d food_store_dev -f TP7_Seguridad_Roles_Auditoria/sql/roles.sql
+psql -X -v ON_ERROR_STOP=1 -U postgres -d food_store_dev \
+  -v app_web_password="$APP_WEB_PASSWORD" \
+  -v admin_datos_password="$ADMIN_DATOS_PASSWORD" \
+  -f TP7_Seguridad_Roles_Auditoria/sql/roles.sql
 
 # 3. Parte B — Activación de auditoría y secuencia de operaciones de prueba
 psql -X -h 127.0.0.1 -U postgres -d food_store_dev -f TP7_Seguridad_Roles_Auditoria/sql/auditoria_test.sql

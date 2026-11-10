@@ -247,7 +247,24 @@ $$;
 
 -- ----------------------------------------------------------------------------
 -- 1. CREACIÓN IDEMPOTENTE DE ROLES DE GRUPO (NOLOGIN) Y DE LOGIN (LOGIN)
+-- Las contraseñas de login no viven en este archivo.
+--   psql -v app_web_password="$APP_WEB_PASSWORD" \
+--        -v admin_datos_password="$ADMIN_DATOS_PASSWORD" \
+--        -f sql/roles.sql
 -- ----------------------------------------------------------------------------
+\if :{?app_web_password}
+\else
+\echo 'Falta -v app_web_password. No se escribe la contraseña en el repositorio.'
+\quit 1
+\endif
+\if :{?admin_datos_password}
+\else
+\echo 'Falta -v admin_datos_password. No se escribe la contraseña en el repositorio.'
+\quit 1
+\endif
+SELECT set_config('foodstore.app_web_password', :'app_web_password', false);
+SELECT set_config('foodstore.admin_datos_password', :'admin_datos_password', false);
+
 DO $$
 BEGIN
     -- Roles de grupo base (Clase 1)
@@ -278,19 +295,27 @@ BEGIN
 
     -- Roles de login (Clase 1)
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'app_web') THEN
-        CREATE ROLE app_web LOGIN PASSWORD 'AppWeb_FoodStore_2026!'
-            NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT CONNECTION LIMIT 50;
+        EXECUTE format(
+            'CREATE ROLE app_web LOGIN PASSWORD %L NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT CONNECTION LIMIT 50',
+            current_setting('foodstore.app_web_password')
+        );
     ELSE
-        ALTER ROLE app_web WITH LOGIN PASSWORD 'AppWeb_FoodStore_2026!'
-            NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT CONNECTION LIMIT 50;
+        EXECUTE format(
+            'ALTER ROLE app_web WITH LOGIN PASSWORD %L NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT CONNECTION LIMIT 50',
+            current_setting('foodstore.app_web_password')
+        );
     END IF;
 
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'admin_datos') THEN
-        CREATE ROLE admin_datos LOGIN PASSWORD 'AdminDatos_FoodStore_2026!'
-            NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT CONNECTION LIMIT 10;
+        EXECUTE format(
+            'CREATE ROLE admin_datos LOGIN PASSWORD %L NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT CONNECTION LIMIT 10',
+            current_setting('foodstore.admin_datos_password')
+        );
     ELSE
-        ALTER ROLE admin_datos WITH LOGIN PASSWORD 'AdminDatos_FoodStore_2026!'
-            NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT CONNECTION LIMIT 10;
+        EXECUTE format(
+            'ALTER ROLE admin_datos WITH LOGIN PASSWORD %L NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT CONNECTION LIMIT 10',
+            current_setting('foodstore.admin_datos_password')
+        );
     END IF;
 END $$;
 

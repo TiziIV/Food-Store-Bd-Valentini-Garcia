@@ -22,6 +22,11 @@ cada unidad, cómo se probó, qué resultados dio, qué se optimizó y
 con qué diferencia antes/después, y el uso de IA a lo largo del
 proyecto.
 
+La segunda entrega del TPI (unidades 4 a 8) está resumida en
+[`Informe_TPI_Segunda_Entrega.md`](Informe_TPI_Segunda_Entrega.md).
+Las unidades 7 y 8 viven en el repositorio
+`Trabajos-Practicos-BD-Valentini-Garcia`.
+
 ## Estructura del repositorio
 
 El repositorio está dividido por trabajo práctico. Cada carpeta
@@ -63,6 +68,7 @@ Food-Store-Bd-Valentini-Garcia/
 │   └── README.md
 ├── TP6_FNBC_Desnormalizacion/      (Semana 8 — Unidad 4: FNBC y desnormalización controlada)
 │   ├── tp_fnbc_control_lote.sql, tp_desnormalizacion_top_categorias.sql
+│   ├── kiro/, DUIA.md
 │   ├── informe_fnbc_desnormalizacion.pdf
 │   ├── evidencias/, herramientas/
 │   └── README.md

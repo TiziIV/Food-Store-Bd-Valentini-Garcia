@@ -1,6 +1,6 @@
 # TP6 - FNBC y Desnormalización Controlada
 
-Unidad 4 - Base de Datos II. Parte 1: normalización de `control_lote_almacen` hasta FNBC. Parte 2: desnormalización controlada del reporte top 5 de categorías del día.
+Unidad 4 - Base de Datos II. Parte 1: normalización de `control_lote_almacen` hasta FNBC. Parte 2: desnormalización controlada del reporte top 5 de categorías del día. La spec de Kiro está en `kiro/` y la declaración de uso de IA en `DUIA.md`. La reversión de la Parte 2 es `herramientas/revertir_desnormalizacion.sql`.
 
 ## Archivos
 
