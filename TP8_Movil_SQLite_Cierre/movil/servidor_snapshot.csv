@@ -1,0 +1,11 @@
+id,nombre,precio_centavos,stock,disponible,eliminado
+1,Muzzarella,105000,40,t,f
+2,Napolitana,150000,25,t,f
+3,Coca 1.5L,80000,100,t,f
+4,Agua Mineral 500ml,40000,150,t,f
+5,Flan Casero,65000,20,t,f
+6,Faina Especial,35000,50,t,f
+7,Calzone Calabres,180000,15,t,f
+8,Cerveza IPA 500ml,120000,60,t,f
+9,Empanada de Carne,45000,80,t,f
+10,Tiramisu Artesanal,75000,12,t,f
